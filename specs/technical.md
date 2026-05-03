@@ -187,7 +187,7 @@ frontend/
 |---|---|---|---|
 | id | UUID | PK | |
 | user_id | UUID | FK → users, NOT NULL | |
-| day_of_week | SMALLINT | NOT NULL | 0=月〜6=日 |
+| day_of_week | SMALLINT | NOT NULL | 0=日〜6=土（Go time.Weekday準拠） |
 | hours | DECIMAL(3,1) | NOT NULL | 勉強可能時間（h） |
 
 UNIQUE(user_id, day_of_week)
@@ -200,7 +200,6 @@ UNIQUE(user_id, day_of_week)
 | user_id | UUID | FK → users, NOT NULL | |
 | title | VARCHAR(200) | NOT NULL | 教材名 |
 | total_pages | INTEGER | NOT NULL | 総ページ数 |
-| current_page | INTEGER | NOT NULL, DEFAULT 0 | 現在の進捗ページ |
 | start_date | DATE | NOT NULL | 開始日 |
 | target_date | DATE | NOT NULL | 目標期限 |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'active' | active / completed / paused |
@@ -214,16 +213,15 @@ UNIQUE(user_id, day_of_week)
 |---|---|---|---|
 | id | UUID | PK | |
 | plan_id | UUID | FK → plans, NOT NULL | |
-| user_id | UUID | FK → users, NOT NULL | |
 | date | DATE | NOT NULL | 対象日 |
 | start_page | INTEGER | NOT NULL | 開始ページ |
-| end_page | INTEGER | NOT NULL | 終了ページ |
+| end_page | INTEGER | NOT NULL | AIが算出した目標ページ |
+| actual_end_page | INTEGER | NULLABLE | 実際に読み終わったページ（完了時に記入） |
 | is_completed | BOOLEAN | NOT NULL, DEFAULT false | |
 | memo | TEXT | NULLABLE | 学習メモ（完了時に記入） |
 | completed_at | TIMESTAMP | NULLABLE | |
 | created_at | TIMESTAMP | NOT NULL | |
 
-INDEX(user_id, date)
 INDEX(plan_id, date)
 
 ### learning_summaries（学習サマリー）※v1.1
