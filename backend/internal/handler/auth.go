@@ -5,105 +5,92 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/hatamotoyuki/ninjo/backend/internal/handler/dto"
+	"github.com/hatamotoyuki/ninjo/backend/internal/handler/oapi"
 	"github.com/hatamotoyuki/ninjo/backend/internal/usecase"
 )
 
-// AuthHandler は認証関連のHTTPハンドラ。
-type AuthHandler struct {
-	authUsecase *usecase.AuthUsecase
-}
-
-func NewAuthHandler(authUsecase *usecase.AuthUsecase) *AuthHandler {
-	return &AuthHandler{authUsecase: authUsecase}
-}
-
 // Signup はユーザー新規登録。
-// POST /api/v1/auth/signup
-func (h *AuthHandler) Signup(c echo.Context) error {
-	var req dto.SignupRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+func (h *Handler) Signup(ctx echo.Context) error {
+	var req oapi.SignupRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, oapi.ErrorResponse{Error: "invalid request body"})
 	}
-	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	if err := ctx.Validate(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, oapi.ErrorResponse{Error: err.Error()})
 	}
 
-	result, err := h.authUsecase.Signup(c.Request().Context(), usecase.SignupInput{
-		Email:       req.Email,
+	result, err := h.uc.Auth().Signup(ctx.Request().Context(), usecase.SignupInput{
+		Email:       string(req.Email),
 		Password:    req.Password,
 		DisplayName: req.DisplayName,
 	})
 	if err != nil {
 		if err == usecase.ErrEmailAlreadyExists {
-			return c.JSON(http.StatusConflict, map[string]string{"error": "email already exists"})
+			return ctx.JSON(http.StatusConflict, oapi.ErrorResponse{Error: "email already exists"})
 		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
+		return ctx.JSON(http.StatusInternalServerError, oapi.ErrorResponse{Error: "internal server error"})
 	}
 
-	setTokenCookies(c, result.AccessToken, result.RefreshToken)
+	setTokenCookies(ctx, result.AccessToken, result.RefreshToken)
 
-	return c.JSON(http.StatusCreated, dto.UserResponse{
-		ID:          result.User.ID.String(),
+	return ctx.JSON(http.StatusCreated, oapi.UserResponse{
+		Id:          result.User.ID,
 		Email:       result.User.Email,
 		DisplayName: result.User.DisplayName,
 	})
 }
 
 // Login はログイン。
-// POST /api/v1/auth/login
-func (h *AuthHandler) Login(c echo.Context) error {
-	var req dto.LoginRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+func (h *Handler) Login(ctx echo.Context) error {
+	var req oapi.LoginRequest
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, oapi.ErrorResponse{Error: "invalid request body"})
 	}
-	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	if err := ctx.Validate(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, oapi.ErrorResponse{Error: err.Error()})
 	}
 
-	result, err := h.authUsecase.Login(c.Request().Context(), usecase.LoginInput{
-		Email:    req.Email,
+	result, err := h.uc.Auth().Login(ctx.Request().Context(), usecase.LoginInput{
+		Email:    string(req.Email),
 		Password: req.Password,
 	})
 	if err != nil {
 		if err == usecase.ErrInvalidCredentials {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid email or password"})
+			return ctx.JSON(http.StatusUnauthorized, oapi.ErrorResponse{Error: "invalid email or password"})
 		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "internal server error"})
+		return ctx.JSON(http.StatusInternalServerError, oapi.ErrorResponse{Error: "internal server error"})
 	}
 
-	setTokenCookies(c, result.AccessToken, result.RefreshToken)
+	setTokenCookies(ctx, result.AccessToken, result.RefreshToken)
 
-	return c.JSON(http.StatusOK, dto.UserResponse{
-		ID:          result.User.ID.String(),
+	return ctx.JSON(http.StatusOK, oapi.UserResponse{
+		Id:          result.User.ID,
 		Email:       result.User.Email,
 		DisplayName: result.User.DisplayName,
 	})
 }
 
-// Logout はログアウト。Cookieを削除する。
-// POST /api/v1/auth/logout
-func (h *AuthHandler) Logout(c echo.Context) error {
-	clearTokenCookies(c)
-	return c.NoContent(http.StatusNoContent)
+// Logout はログアウト。
+func (h *Handler) Logout(ctx echo.Context) error {
+	clearTokenCookies(ctx)
+	return ctx.NoContent(http.StatusNoContent)
 }
 
-// Refresh はアクセストークンを更新する。
-// POST /api/v1/auth/refresh
-func (h *AuthHandler) Refresh(c echo.Context) error {
-	cookie, err := c.Cookie("refresh_token")
+// RefreshToken はアクセストークンを更新する。
+func (h *Handler) RefreshToken(ctx echo.Context) error {
+	cookie, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "refresh token required"})
+		return ctx.JSON(http.StatusUnauthorized, oapi.ErrorResponse{Error: "refresh token required"})
 	}
 
-	newAccessToken, err := h.authUsecase.Refresh(c.Request().Context(), cookie.Value)
+	newAccessToken, err := h.uc.Auth().Refresh(ctx.Request().Context(), cookie.Value)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid or expired refresh token"})
+		return ctx.JSON(http.StatusUnauthorized, oapi.ErrorResponse{Error: "invalid or expired refresh token"})
 	}
 
-	setAccessTokenCookie(c, newAccessToken)
+	setAccessTokenCookie(ctx, newAccessToken)
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "token refreshed"})
+	return ctx.JSON(http.StatusOK, oapi.MessageResponse{Message: "token refreshed"})
 }
 
 // setTokenCookies はアクセストークンとリフレッシュトークンをCookieにセットする。
@@ -115,9 +102,9 @@ func setTokenCookies(c echo.Context, accessToken, refreshToken string) {
 		Value:    refreshToken,
 		Path:     "/api/v1/auth/refresh",
 		HttpOnly: true,
-		Secure:   false, // 開発環境ではfalse。本番ではtrue
+		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
-		MaxAge:   30 * 24 * 60 * 60, // 30日
+		MaxAge:   30 * 24 * 60 * 60,
 	})
 }
 
@@ -127,13 +114,12 @@ func setAccessTokenCookie(c echo.Context, accessToken string) {
 		Value:    accessToken,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // 開発環境ではfalse。本番ではtrue
+		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
-		MaxAge:   60 * 60, // 1時間
+		MaxAge:   60 * 60,
 	})
 }
 
-// clearTokenCookies はCookieを削除する（MaxAge=-1で即時削除）。
 func clearTokenCookies(c echo.Context) {
 	c.SetCookie(&http.Cookie{
 		Name:     "access_token",
@@ -150,4 +136,3 @@ func clearTokenCookies(c echo.Context) {
 		MaxAge:   -1,
 	})
 }
-

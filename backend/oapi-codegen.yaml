@@ -1,0 +1,6 @@
+package: oapi
+output: internal/handler/oapi/server.gen.go
+generate:
+  echo-server: true
+  models: true
+  embedded-spec: true

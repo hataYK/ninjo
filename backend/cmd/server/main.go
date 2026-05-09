@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -50,10 +49,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-	})
-
+	// ルーティング登録（OpenAPI自動生成）
 	handler.RegisterRoutes(e, uc)
 
 	log.Fatal(e.Start(":" + cfg.Port))
