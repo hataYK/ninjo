@@ -11,6 +11,7 @@
 | API クライアント生成 | Orval（OpenAPI → hooks + 型を自動生成） |
 | Backend | Go 1.22+ / Echo v4 |
 | ORM | ent (by Meta)（スキーマからコード自動生成） |
+| API コード生成 (Go) | oapi-codegen（OpenAPI → ServerInterface + 型 + ルーティング） |
 | バリデーション | go-playground/validator |
 | AI | Anthropic Go SDK (Claude API) |
 | DB | PostgreSQL 16 |
@@ -263,16 +264,32 @@ INDEX(plan_id, date)
 - httpOnly Cookie でトークン管理
 - Go: golang-jwt/jwt でトークン生成・検証
 
-## OpenAPI スキーマ生成
+## OpenAPI コード生成 (SDD)
 
-Go/Echo から OpenAPI スキーマを生成する方法:
+SDD（Specification-Driven Development）のフローに基づき、OpenAPI スキーマを起点にコードを自動生成する。
+
+### バックエンド: oapi-codegen
+
+`docs/openapi/openapi.yaml` を Single Source of Truth として、Go のサーバーインターフェース・型・ルーティングを自動生成する。
 
 ```bash
-# swaggo で Go のコメントアノテーションから OpenAPI を自動生成
-swag init -g cmd/server/main.go -o docs/
+cd backend && oapi-codegen -config oapi-codegen.yaml ../docs/openapi/openapi.yaml
 ```
 
-生成された docs/swagger.json を Orval が読み取り、TypeScript 型を生成:
+生成物（`internal/handler/oapi/server.gen.go`）:
+- `ServerInterface`: ハンドラが実装すべきインターフェース
+- リクエスト/レスポンスの型（SignupRequest, UserResponse 等）
+- `RegisterHandlers()`: Echo へのルーティング自動登録
+- 埋め込み OpenAPI spec
+
+ハンドラは `Handler` 構造体で `ServerInterface` を実装し、コンパイル時に検証する:
+```go
+var _ oapi.ServerInterface = (*Handler)(nil)
+```
+
+### フロントエンド: Orval
+
+同じ `docs/openapi/openapi.yaml` から TypeScript 型・API クライアントを自動生成:
 
 ```bash
 cd frontend && npx orval
