@@ -8,30 +8,37 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	// PostgreSQLドライバ（database/sqlに登録するためimport）
 	_ "github.com/lib/pq"
 
 	"github.com/hatamotoyuki/ninjo/backend/ent"
 	"github.com/hatamotoyuki/ninjo/backend/internal/config"
+	"github.com/hatamotoyuki/ninjo/backend/internal/handler"
+	"github.com/hatamotoyuki/ninjo/backend/internal/infra/persistence"
+	"github.com/hatamotoyuki/ninjo/backend/internal/usecase"
 )
 
 func main() {
 	cfg := config.Load()
 
-	// entクライアント作成（PostgreSQLに接続）
+	// DB接続 + マイグレーション
 	client, err := ent.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer client.Close()
 
-	// 自動マイグレーション実行（entスキーマ → DBテーブル作成）
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed to run migration: %v", err)
 	}
 	log.Println("database migration completed")
 
+	// DI: infra → usecase → handler の順に組み立て
+	userRepo := persistence.NewUserRepository(client)
+	authUsecase := usecase.NewAuthUsecase(userRepo, cfg.JWTSecret)
+
+	// Echo セットアップ
 	e := echo.New()
+	e.Validator = handler.NewValidator()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -43,6 +50,9 @@ func main() {
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
+
+	// ルーティング登録
+	handler.RegisterRoutes(e, authUsecase)
 
 	log.Fatal(e.Start(":" + cfg.Port))
 }
