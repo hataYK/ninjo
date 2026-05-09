@@ -139,7 +139,8 @@ backend/
 │   │   │   ├── user_repository.go
 │   │   │   ├── plan_repository.go
 │   │   │   ├── daily_task_repository.go
-│   │   │   └── availability_repository.go
+│   │   │   ├── availability_repository.go
+│   │   │   └── skill_repository.go
 │   │   └── external/                  # 外部サービス
 │   │       └── claude_client.go       # Claude API クライアント
 │   │
@@ -151,7 +152,8 @@ backend/
 │   │   ├── user.go
 │   │   ├── plan.go
 │   │   ├── dailytask.go
-│   │   └── availability.go
+│   │   ├── availability.go
+│   │   └── skill.go
 │   ├── generate.go
 │   └── ...                            # 自動生成コード（手動編集禁止）
 │
@@ -171,13 +173,16 @@ frontend/
 │   │   ├── page.tsx
 │   │   ├── (auth)/login/
 │   │   ├── (auth)/signup/
-│   │   ├── dashboard/             # 今日のタスク一覧
+│   │   ├── (home)/                # ホーム（アバター中央 + タスク + 計画）
 │   │   ├── plans/                 # 計画一覧
 │   │   ├── plans/new/             # 計画作成
 │   │   ├── plans/[id]/            # 計画詳細
-│   │   └── settings/              # 可処分時間設定
+│   │   ├── avatar/                # アバター詳細（スキル一覧）
+│   │   └── settings/              # 可処分時間 + アバター変更
 │   │
 │   ├── components/
+│   │   ├── avatar/                # アバター表示・選択
+│   │   ├── skill/                 # スキル表示・確認UI
 │   │   ├── task/
 │   │   ├── plan/
 │   │   └── layout/
@@ -202,6 +207,7 @@ frontend/
 | email | VARCHAR(255) | UNIQUE, NOT NULL | |
 | password_hash | VARCHAR(255) | NOT NULL | |
 | display_name | VARCHAR(100) | NOT NULL | |
+| avatar_preset_id | VARCHAR(20) | NULLABLE | アバタープリセットID（例: "preset_01"） |
 | created_at | TIMESTAMP | NOT NULL | |
 | updated_at | TIMESTAMP | NOT NULL | |
 
@@ -247,6 +253,21 @@ UNIQUE(user_id, day_of_week)
 | created_at | TIMESTAMP | NOT NULL | |
 
 INDEX(plan_id, date)
+
+### skills（スキル）
+
+| カラム | 型 | 制約 | 説明 |
+|---|---|---|---|
+| id | UUID | PK | |
+| user_id | UUID | FK → users, NOT NULL | |
+| task_id | UUID | FK → daily_tasks, NULLABLE | 紐づくタスク（手動追加の場合はNULL） |
+| name | VARCHAR(200) | NOT NULL | スキル名（例: "AWS: VPC設計"） |
+| category | VARCHAR(50) | NOT NULL | カテゴリ名 |
+| source | VARCHAR(10) | NOT NULL | "ai" or "manual" |
+| created_at | TIMESTAMP | NOT NULL | |
+
+UNIQUE(user_id, name)
+INDEX(user_id, category)
 
 ### learning_summaries（学習サマリー）※v1.1
 
