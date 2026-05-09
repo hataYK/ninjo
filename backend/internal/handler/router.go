@@ -8,7 +8,9 @@ import (
 )
 
 // RegisterRoutes はすべてのルーティングを登録する。
-func RegisterRoutes(e *echo.Echo, authUsecase *usecase.AuthUsecase) {
+// Usecase ファサードを受け取り、各ハンドラに必要なユースケースを渡す。
+func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
+	authUsecase := uc.Auth()
 	authHandler := NewAuthHandler(authUsecase)
 
 	// 認証不要のエンドポイント

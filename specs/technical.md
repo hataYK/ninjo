@@ -67,6 +67,26 @@
 - Infra は Domain が定義したインターフェースを実装する（依存性逆転）
 - ent の生成コードは Infra 層でのみ使用。Domain に漏らさない
 
+### DI（依存性注入）: ファサードパターン
+
+DIライブラリは使わず、2つのファサードに依存を集約する:
+
+```
+main.go
+  └── DataStore（リポジトリのファサード）  ← infra/datastore.go
+        └── .User() → UserRepository
+        └── .Plan() → PlanRepository
+        └── ...
+  └── Usecase（ビジネスロジックのファサード） ← usecase/usecase.go
+        └── .Auth() → AuthUsecase
+        └── .Plan() → PlanUsecase
+        └── ...
+  └── handler.RegisterRoutes(e, uc)
+```
+
+- 機能追加時は `datastore.go` と `usecase.go` にメソッドを足すだけ
+- main.go は変更不要
+
 ## バックエンド ディレクトリ構成
 
 ```
@@ -91,6 +111,7 @@ backend/
 │   │       └── ai_reviewer.go
 │   │
 │   ├── usecase/                       # ===== Usecase層 =====
+│   │   ├── usecase.go                 # ファサード（全ユースケースへのアクセサ）
 │   │   ├── auth.go                    # 認証ユースケース
 │   │   ├── plan.go                    # 計画作成・レビュー・一覧
 │   │   ├── daily_task.go              # タスク生成・完了
@@ -98,6 +119,7 @@ backend/
 │   │
 │   ├── handler/                       # ===== Handler層 =====
 │   │   ├── router.go                  # ルーティング定義
+│   │   ├── validator.go               # リクエストバリデーター
 │   │   ├── middleware/                # ミドルウェア
 │   │   │   └── auth.go               # JWT認証
 │   │   ├── auth.go
@@ -111,6 +133,7 @@ backend/
 │   │       └── availability.go
 │   │
 │   ├── infra/                         # ===== Infra層 =====
+│   │   ├── datastore.go               # ファサード（全リポジトリへのアクセサ）
 │   │   ├── persistence/               # DB永続化（entを使う）
 │   │   │   ├── user_repository.go
 │   │   │   ├── plan_repository.go
