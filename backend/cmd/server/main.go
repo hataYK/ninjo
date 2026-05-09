@@ -13,7 +13,7 @@ import (
 	"github.com/hatamotoyuki/ninjo/backend/ent"
 	"github.com/hatamotoyuki/ninjo/backend/internal/config"
 	"github.com/hatamotoyuki/ninjo/backend/internal/handler"
-	"github.com/hatamotoyuki/ninjo/backend/internal/infra/persistence"
+	"github.com/hatamotoyuki/ninjo/backend/internal/infra"
 	"github.com/hatamotoyuki/ninjo/backend/internal/usecase"
 )
 
@@ -32,9 +32,12 @@ func main() {
 	}
 	log.Println("database migration completed")
 
-	// DI: infra → usecase → handler の順に組み立て
-	userRepo := persistence.NewUserRepository(client)
-	authUsecase := usecase.NewAuthUsecase(userRepo, cfg.JWTSecret)
+	// ファサード: DataStore → Usecase の順に組み立て
+	ds := infra.NewDataStore(client)
+	uc := usecase.NewUsecase(usecase.UsecaseConfig{
+		DS:        ds,
+		JWTSecret: cfg.JWTSecret,
+	})
 
 	// Echo セットアップ
 	e := echo.New()
@@ -51,8 +54,7 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
 
-	// ルーティング登録
-	handler.RegisterRoutes(e, authUsecase)
+	handler.RegisterRoutes(e, uc)
 
 	log.Fatal(e.Start(":" + cfg.Port))
 }

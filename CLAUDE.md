@@ -21,6 +21,12 @@ handler → usecase → domain ← infra
 - `internal/infra/` — DB永続化（ent）・外部API実装（domainのIFを実装）
 - ent の生成コードは infra 層でのみ使用
 
+### DI: ファサードパターン
+
+- `infra/datastore.go` — 全リポジトリへのアクセサ（機能追加時はここにメソッド追加）
+- `usecase/usecase.go` — 全ユースケースへのアクセサ（機能追加時はここにメソッド追加）
+- main.go では `DataStore → Usecase → handler` の順に組み立てるだけ
+
 ## Git ルール
 
 - コミット: Conventional Commits（詳細は `/commit` スキル）
