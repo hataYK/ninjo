@@ -21,7 +21,6 @@ func (ds *DataStore) User() repository.UserRepository {
 	return persistence.NewUserRepository(ds.client)
 }
 
-// 今後追加:
-// func (ds *DataStore) Plan() repository.PlanRepository { ... }
-// func (ds *DataStore) DailyTask() repository.DailyTaskRepository { ... }
-// func (ds *DataStore) Availability() repository.AvailabilityRepository { ... }
+func (ds *DataStore) Availability() repository.AvailabilityRepository {
+	return persistence.NewAvailabilityRepository(ds.client)
+}
