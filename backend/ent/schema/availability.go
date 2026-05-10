@@ -21,7 +21,8 @@ func (Availability) Fields() []ent.Field {
 		field.Int8("day_of_week").
 			Range(0, 6),
 		field.Float("hours").
-			Min(0),
+			Min(0).
+			Max(24),
 	}
 }
 

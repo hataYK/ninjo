@@ -26,7 +26,21 @@ func init() {
 	// availabilityDescHours is the schema descriptor for hours field.
 	availabilityDescHours := availabilityFields[2].Descriptor()
 	// availability.HoursValidator is a validator for the "hours" field. It is called by the builders before save.
-	availability.HoursValidator = availabilityDescHours.Validators[0].(func(float64) error)
+	availability.HoursValidator = func() func(float64) error {
+		validators := availabilityDescHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(hours float64) error {
+			for _, fn := range fns {
+				if err := fn(hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// availabilityDescID is the schema descriptor for id field.
 	availabilityDescID := availabilityFields[0].Descriptor()
 	// availability.DefaultID holds the default value on creation for the id field.

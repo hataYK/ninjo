@@ -17,6 +17,25 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+const (
+	CookieAuthScopes cookieAuthContextKey = "cookieAuth.Scopes"
+)
+
+// AvailabilityItem defines model for AvailabilityItem.
+type AvailabilityItem struct {
+	// DayOfWeek Go time.Weekday 準拠（0=日曜, 1=月曜, ..., 6=土曜）
+	DayOfWeek int `json:"day_of_week"`
+
+	// Hours 勉強可能時間（h）。0.5刻み
+	Hours float32 `json:"hours"`
+}
+
+// AvailabilityResponse defines model for AvailabilityResponse.
+type AvailabilityResponse struct {
+	Availability []AvailabilityItem `json:"availability"`
+	WeeklyTotal  float32            `json:"weekly_total"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error string `json:"error"`
@@ -40,6 +59,11 @@ type SignupRequest struct {
 	Password    string              `json:"password"`
 }
 
+// UpdateAvailabilityRequest defines model for UpdateAvailabilityRequest.
+type UpdateAvailabilityRequest struct {
+	Availability []AvailabilityItem `json:"availability"`
+}
+
 // UserResponse defines model for UserResponse.
 type UserResponse struct {
 	DisplayName string             `json:"display_name"`
@@ -56,6 +80,9 @@ type LoginJSONRequestBody = LoginRequest
 // SignupJSONRequestBody defines body for Signup for application/json ContentType.
 type SignupJSONRequestBody = SignupRequest
 
+// UpdateAvailabilityJSONRequestBody defines body for UpdateAvailability for application/json ContentType.
+type UpdateAvailabilityJSONRequestBody = UpdateAvailabilityRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ログイン
@@ -70,6 +97,12 @@ type ServerInterface interface {
 	// ユーザー新規登録
 	// (POST /auth/signup)
 	Signup(ctx echo.Context) error
+	// 可処分時間設定を取得
+	// (GET /availability)
+	GetAvailability(ctx echo.Context) error
+	// 可処分時間設定を一括更新
+	// (PUT /availability)
+	UpdateAvailability(ctx echo.Context) error
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
@@ -113,6 +146,28 @@ func (w *ServerInterfaceWrapper) Signup(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.Signup(ctx)
+	return err
+}
+
+// GetAvailability converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAvailability(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetAvailability(ctx)
+	return err
+}
+
+// UpdateAvailability converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateAvailability(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateAvailability(ctx)
 	return err
 }
 
@@ -176,6 +231,8 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.POST(options.BaseURL+"/auth/logout", wrapper.Logout, options.OperationMiddlewares["logout"]...)
 	router.POST(options.BaseURL+"/auth/refresh", wrapper.RefreshToken, options.OperationMiddlewares["refreshToken"]...)
 	router.POST(options.BaseURL+"/auth/signup", wrapper.Signup, options.OperationMiddlewares["signup"]...)
+	router.GET(options.BaseURL+"/availability", wrapper.GetAvailability, options.OperationMiddlewares["getAvailability"]...)
+	router.PUT(options.BaseURL+"/availability", wrapper.UpdateAvailability, options.OperationMiddlewares["updateAvailability"]...)
 	router.GET(options.BaseURL+"/health", wrapper.HealthCheck, options.OperationMiddlewares["healthCheck"]...)
 
 }
@@ -185,22 +242,28 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
