@@ -4,11 +4,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
 )
 
 // Availability holds the schema definition for the Availability entity.
+// 1ユーザーにつき1行。週の曜日ごとの可処分時間をまとめて管理する。
 type Availability struct {
 	ent.Schema
 }
@@ -18,10 +18,13 @@ func (Availability) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New),
-		field.Int8("day_of_week").
-			Range(0, 6),
-		field.Float("hours").
-			Min(0),
+		field.Float("sun_hours").Default(0).Min(0).Max(24),
+		field.Float("mon_hours").Default(0).Min(0).Max(24),
+		field.Float("tue_hours").Default(0).Min(0).Max(24),
+		field.Float("wed_hours").Default(0).Min(0).Max(24),
+		field.Float("thu_hours").Default(0).Min(0).Max(24),
+		field.Float("fri_hours").Default(0).Min(0).Max(24),
+		field.Float("sat_hours").Default(0).Min(0).Max(24),
 	}
 }
 
@@ -31,15 +34,6 @@ func (Availability) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("availabilities").
 			Required().
-			Unique(),
-	}
-}
-
-// Indexes of the Availability.
-func (Availability) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Edges("user").
-			Fields("day_of_week").
 			Unique(),
 	}
 }

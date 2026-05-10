@@ -29,45 +29,150 @@ func (_u *AvailabilityUpdate) Where(ps ...predicate.Availability) *AvailabilityU
 	return _u
 }
 
-// SetDayOfWeek sets the "day_of_week" field.
-func (_u *AvailabilityUpdate) SetDayOfWeek(v int8) *AvailabilityUpdate {
-	_u.mutation.ResetDayOfWeek()
-	_u.mutation.SetDayOfWeek(v)
+// SetSunHours sets the "sun_hours" field.
+func (_u *AvailabilityUpdate) SetSunHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetSunHours()
+	_u.mutation.SetSunHours(v)
 	return _u
 }
 
-// SetNillableDayOfWeek sets the "day_of_week" field if the given value is not nil.
-func (_u *AvailabilityUpdate) SetNillableDayOfWeek(v *int8) *AvailabilityUpdate {
+// SetNillableSunHours sets the "sun_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableSunHours(v *float64) *AvailabilityUpdate {
 	if v != nil {
-		_u.SetDayOfWeek(*v)
+		_u.SetSunHours(*v)
 	}
 	return _u
 }
 
-// AddDayOfWeek adds value to the "day_of_week" field.
-func (_u *AvailabilityUpdate) AddDayOfWeek(v int8) *AvailabilityUpdate {
-	_u.mutation.AddDayOfWeek(v)
+// AddSunHours adds value to the "sun_hours" field.
+func (_u *AvailabilityUpdate) AddSunHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddSunHours(v)
 	return _u
 }
 
-// SetHours sets the "hours" field.
-func (_u *AvailabilityUpdate) SetHours(v float64) *AvailabilityUpdate {
-	_u.mutation.ResetHours()
-	_u.mutation.SetHours(v)
+// SetMonHours sets the "mon_hours" field.
+func (_u *AvailabilityUpdate) SetMonHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetMonHours()
+	_u.mutation.SetMonHours(v)
 	return _u
 }
 
-// SetNillableHours sets the "hours" field if the given value is not nil.
-func (_u *AvailabilityUpdate) SetNillableHours(v *float64) *AvailabilityUpdate {
+// SetNillableMonHours sets the "mon_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableMonHours(v *float64) *AvailabilityUpdate {
 	if v != nil {
-		_u.SetHours(*v)
+		_u.SetMonHours(*v)
 	}
 	return _u
 }
 
-// AddHours adds value to the "hours" field.
-func (_u *AvailabilityUpdate) AddHours(v float64) *AvailabilityUpdate {
-	_u.mutation.AddHours(v)
+// AddMonHours adds value to the "mon_hours" field.
+func (_u *AvailabilityUpdate) AddMonHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddMonHours(v)
+	return _u
+}
+
+// SetTueHours sets the "tue_hours" field.
+func (_u *AvailabilityUpdate) SetTueHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetTueHours()
+	_u.mutation.SetTueHours(v)
+	return _u
+}
+
+// SetNillableTueHours sets the "tue_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableTueHours(v *float64) *AvailabilityUpdate {
+	if v != nil {
+		_u.SetTueHours(*v)
+	}
+	return _u
+}
+
+// AddTueHours adds value to the "tue_hours" field.
+func (_u *AvailabilityUpdate) AddTueHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddTueHours(v)
+	return _u
+}
+
+// SetWedHours sets the "wed_hours" field.
+func (_u *AvailabilityUpdate) SetWedHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetWedHours()
+	_u.mutation.SetWedHours(v)
+	return _u
+}
+
+// SetNillableWedHours sets the "wed_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableWedHours(v *float64) *AvailabilityUpdate {
+	if v != nil {
+		_u.SetWedHours(*v)
+	}
+	return _u
+}
+
+// AddWedHours adds value to the "wed_hours" field.
+func (_u *AvailabilityUpdate) AddWedHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddWedHours(v)
+	return _u
+}
+
+// SetThuHours sets the "thu_hours" field.
+func (_u *AvailabilityUpdate) SetThuHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetThuHours()
+	_u.mutation.SetThuHours(v)
+	return _u
+}
+
+// SetNillableThuHours sets the "thu_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableThuHours(v *float64) *AvailabilityUpdate {
+	if v != nil {
+		_u.SetThuHours(*v)
+	}
+	return _u
+}
+
+// AddThuHours adds value to the "thu_hours" field.
+func (_u *AvailabilityUpdate) AddThuHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddThuHours(v)
+	return _u
+}
+
+// SetFriHours sets the "fri_hours" field.
+func (_u *AvailabilityUpdate) SetFriHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetFriHours()
+	_u.mutation.SetFriHours(v)
+	return _u
+}
+
+// SetNillableFriHours sets the "fri_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableFriHours(v *float64) *AvailabilityUpdate {
+	if v != nil {
+		_u.SetFriHours(*v)
+	}
+	return _u
+}
+
+// AddFriHours adds value to the "fri_hours" field.
+func (_u *AvailabilityUpdate) AddFriHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddFriHours(v)
+	return _u
+}
+
+// SetSatHours sets the "sat_hours" field.
+func (_u *AvailabilityUpdate) SetSatHours(v float64) *AvailabilityUpdate {
+	_u.mutation.ResetSatHours()
+	_u.mutation.SetSatHours(v)
+	return _u
+}
+
+// SetNillableSatHours sets the "sat_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdate) SetNillableSatHours(v *float64) *AvailabilityUpdate {
+	if v != nil {
+		_u.SetSatHours(*v)
+	}
+	return _u
+}
+
+// AddSatHours adds value to the "sat_hours" field.
+func (_u *AvailabilityUpdate) AddSatHours(v float64) *AvailabilityUpdate {
+	_u.mutation.AddSatHours(v)
 	return _u
 }
 
@@ -122,14 +227,39 @@ func (_u *AvailabilityUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AvailabilityUpdate) check() error {
-	if v, ok := _u.mutation.DayOfWeek(); ok {
-		if err := availability.DayOfWeekValidator(v); err != nil {
-			return &ValidationError{Name: "day_of_week", err: fmt.Errorf(`ent: validator failed for field "Availability.day_of_week": %w`, err)}
+	if v, ok := _u.mutation.SunHours(); ok {
+		if err := availability.SunHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sun_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sun_hours": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Hours(); ok {
-		if err := availability.HoursValidator(v); err != nil {
-			return &ValidationError{Name: "hours", err: fmt.Errorf(`ent: validator failed for field "Availability.hours": %w`, err)}
+	if v, ok := _u.mutation.MonHours(); ok {
+		if err := availability.MonHoursValidator(v); err != nil {
+			return &ValidationError{Name: "mon_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.mon_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.TueHours(); ok {
+		if err := availability.TueHoursValidator(v); err != nil {
+			return &ValidationError{Name: "tue_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.tue_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.WedHours(); ok {
+		if err := availability.WedHoursValidator(v); err != nil {
+			return &ValidationError{Name: "wed_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.wed_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ThuHours(); ok {
+		if err := availability.ThuHoursValidator(v); err != nil {
+			return &ValidationError{Name: "thu_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.thu_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FriHours(); ok {
+		if err := availability.FriHoursValidator(v); err != nil {
+			return &ValidationError{Name: "fri_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.fri_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SatHours(); ok {
+		if err := availability.SatHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sat_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sat_hours": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -150,17 +280,47 @@ func (_u *AvailabilityUpdate) sqlSave(ctx context.Context) (_node int, err error
 			}
 		}
 	}
-	if value, ok := _u.mutation.DayOfWeek(); ok {
-		_spec.SetField(availability.FieldDayOfWeek, field.TypeInt8, value)
+	if value, ok := _u.mutation.SunHours(); ok {
+		_spec.SetField(availability.FieldSunHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.AddedDayOfWeek(); ok {
-		_spec.AddField(availability.FieldDayOfWeek, field.TypeInt8, value)
+	if value, ok := _u.mutation.AddedSunHours(); ok {
+		_spec.AddField(availability.FieldSunHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.Hours(); ok {
-		_spec.SetField(availability.FieldHours, field.TypeFloat64, value)
+	if value, ok := _u.mutation.MonHours(); ok {
+		_spec.SetField(availability.FieldMonHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.AddedHours(); ok {
-		_spec.AddField(availability.FieldHours, field.TypeFloat64, value)
+	if value, ok := _u.mutation.AddedMonHours(); ok {
+		_spec.AddField(availability.FieldMonHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.TueHours(); ok {
+		_spec.SetField(availability.FieldTueHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedTueHours(); ok {
+		_spec.AddField(availability.FieldTueHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.WedHours(); ok {
+		_spec.SetField(availability.FieldWedHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedWedHours(); ok {
+		_spec.AddField(availability.FieldWedHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ThuHours(); ok {
+		_spec.SetField(availability.FieldThuHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedThuHours(); ok {
+		_spec.AddField(availability.FieldThuHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.FriHours(); ok {
+		_spec.SetField(availability.FieldFriHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedFriHours(); ok {
+		_spec.AddField(availability.FieldFriHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.SatHours(); ok {
+		_spec.SetField(availability.FieldSatHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSatHours(); ok {
+		_spec.AddField(availability.FieldSatHours, field.TypeFloat64, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -211,45 +371,150 @@ type AvailabilityUpdateOne struct {
 	mutation *AvailabilityMutation
 }
 
-// SetDayOfWeek sets the "day_of_week" field.
-func (_u *AvailabilityUpdateOne) SetDayOfWeek(v int8) *AvailabilityUpdateOne {
-	_u.mutation.ResetDayOfWeek()
-	_u.mutation.SetDayOfWeek(v)
+// SetSunHours sets the "sun_hours" field.
+func (_u *AvailabilityUpdateOne) SetSunHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetSunHours()
+	_u.mutation.SetSunHours(v)
 	return _u
 }
 
-// SetNillableDayOfWeek sets the "day_of_week" field if the given value is not nil.
-func (_u *AvailabilityUpdateOne) SetNillableDayOfWeek(v *int8) *AvailabilityUpdateOne {
+// SetNillableSunHours sets the "sun_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableSunHours(v *float64) *AvailabilityUpdateOne {
 	if v != nil {
-		_u.SetDayOfWeek(*v)
+		_u.SetSunHours(*v)
 	}
 	return _u
 }
 
-// AddDayOfWeek adds value to the "day_of_week" field.
-func (_u *AvailabilityUpdateOne) AddDayOfWeek(v int8) *AvailabilityUpdateOne {
-	_u.mutation.AddDayOfWeek(v)
+// AddSunHours adds value to the "sun_hours" field.
+func (_u *AvailabilityUpdateOne) AddSunHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddSunHours(v)
 	return _u
 }
 
-// SetHours sets the "hours" field.
-func (_u *AvailabilityUpdateOne) SetHours(v float64) *AvailabilityUpdateOne {
-	_u.mutation.ResetHours()
-	_u.mutation.SetHours(v)
+// SetMonHours sets the "mon_hours" field.
+func (_u *AvailabilityUpdateOne) SetMonHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetMonHours()
+	_u.mutation.SetMonHours(v)
 	return _u
 }
 
-// SetNillableHours sets the "hours" field if the given value is not nil.
-func (_u *AvailabilityUpdateOne) SetNillableHours(v *float64) *AvailabilityUpdateOne {
+// SetNillableMonHours sets the "mon_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableMonHours(v *float64) *AvailabilityUpdateOne {
 	if v != nil {
-		_u.SetHours(*v)
+		_u.SetMonHours(*v)
 	}
 	return _u
 }
 
-// AddHours adds value to the "hours" field.
-func (_u *AvailabilityUpdateOne) AddHours(v float64) *AvailabilityUpdateOne {
-	_u.mutation.AddHours(v)
+// AddMonHours adds value to the "mon_hours" field.
+func (_u *AvailabilityUpdateOne) AddMonHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddMonHours(v)
+	return _u
+}
+
+// SetTueHours sets the "tue_hours" field.
+func (_u *AvailabilityUpdateOne) SetTueHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetTueHours()
+	_u.mutation.SetTueHours(v)
+	return _u
+}
+
+// SetNillableTueHours sets the "tue_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableTueHours(v *float64) *AvailabilityUpdateOne {
+	if v != nil {
+		_u.SetTueHours(*v)
+	}
+	return _u
+}
+
+// AddTueHours adds value to the "tue_hours" field.
+func (_u *AvailabilityUpdateOne) AddTueHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddTueHours(v)
+	return _u
+}
+
+// SetWedHours sets the "wed_hours" field.
+func (_u *AvailabilityUpdateOne) SetWedHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetWedHours()
+	_u.mutation.SetWedHours(v)
+	return _u
+}
+
+// SetNillableWedHours sets the "wed_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableWedHours(v *float64) *AvailabilityUpdateOne {
+	if v != nil {
+		_u.SetWedHours(*v)
+	}
+	return _u
+}
+
+// AddWedHours adds value to the "wed_hours" field.
+func (_u *AvailabilityUpdateOne) AddWedHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddWedHours(v)
+	return _u
+}
+
+// SetThuHours sets the "thu_hours" field.
+func (_u *AvailabilityUpdateOne) SetThuHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetThuHours()
+	_u.mutation.SetThuHours(v)
+	return _u
+}
+
+// SetNillableThuHours sets the "thu_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableThuHours(v *float64) *AvailabilityUpdateOne {
+	if v != nil {
+		_u.SetThuHours(*v)
+	}
+	return _u
+}
+
+// AddThuHours adds value to the "thu_hours" field.
+func (_u *AvailabilityUpdateOne) AddThuHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddThuHours(v)
+	return _u
+}
+
+// SetFriHours sets the "fri_hours" field.
+func (_u *AvailabilityUpdateOne) SetFriHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetFriHours()
+	_u.mutation.SetFriHours(v)
+	return _u
+}
+
+// SetNillableFriHours sets the "fri_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableFriHours(v *float64) *AvailabilityUpdateOne {
+	if v != nil {
+		_u.SetFriHours(*v)
+	}
+	return _u
+}
+
+// AddFriHours adds value to the "fri_hours" field.
+func (_u *AvailabilityUpdateOne) AddFriHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddFriHours(v)
+	return _u
+}
+
+// SetSatHours sets the "sat_hours" field.
+func (_u *AvailabilityUpdateOne) SetSatHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.ResetSatHours()
+	_u.mutation.SetSatHours(v)
+	return _u
+}
+
+// SetNillableSatHours sets the "sat_hours" field if the given value is not nil.
+func (_u *AvailabilityUpdateOne) SetNillableSatHours(v *float64) *AvailabilityUpdateOne {
+	if v != nil {
+		_u.SetSatHours(*v)
+	}
+	return _u
+}
+
+// AddSatHours adds value to the "sat_hours" field.
+func (_u *AvailabilityUpdateOne) AddSatHours(v float64) *AvailabilityUpdateOne {
+	_u.mutation.AddSatHours(v)
 	return _u
 }
 
@@ -317,14 +582,39 @@ func (_u *AvailabilityUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AvailabilityUpdateOne) check() error {
-	if v, ok := _u.mutation.DayOfWeek(); ok {
-		if err := availability.DayOfWeekValidator(v); err != nil {
-			return &ValidationError{Name: "day_of_week", err: fmt.Errorf(`ent: validator failed for field "Availability.day_of_week": %w`, err)}
+	if v, ok := _u.mutation.SunHours(); ok {
+		if err := availability.SunHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sun_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sun_hours": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Hours(); ok {
-		if err := availability.HoursValidator(v); err != nil {
-			return &ValidationError{Name: "hours", err: fmt.Errorf(`ent: validator failed for field "Availability.hours": %w`, err)}
+	if v, ok := _u.mutation.MonHours(); ok {
+		if err := availability.MonHoursValidator(v); err != nil {
+			return &ValidationError{Name: "mon_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.mon_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.TueHours(); ok {
+		if err := availability.TueHoursValidator(v); err != nil {
+			return &ValidationError{Name: "tue_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.tue_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.WedHours(); ok {
+		if err := availability.WedHoursValidator(v); err != nil {
+			return &ValidationError{Name: "wed_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.wed_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ThuHours(); ok {
+		if err := availability.ThuHoursValidator(v); err != nil {
+			return &ValidationError{Name: "thu_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.thu_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.FriHours(); ok {
+		if err := availability.FriHoursValidator(v); err != nil {
+			return &ValidationError{Name: "fri_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.fri_hours": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SatHours(); ok {
+		if err := availability.SatHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sat_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sat_hours": %w`, err)}
 		}
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
@@ -362,17 +652,47 @@ func (_u *AvailabilityUpdateOne) sqlSave(ctx context.Context) (_node *Availabili
 			}
 		}
 	}
-	if value, ok := _u.mutation.DayOfWeek(); ok {
-		_spec.SetField(availability.FieldDayOfWeek, field.TypeInt8, value)
+	if value, ok := _u.mutation.SunHours(); ok {
+		_spec.SetField(availability.FieldSunHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.AddedDayOfWeek(); ok {
-		_spec.AddField(availability.FieldDayOfWeek, field.TypeInt8, value)
+	if value, ok := _u.mutation.AddedSunHours(); ok {
+		_spec.AddField(availability.FieldSunHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.Hours(); ok {
-		_spec.SetField(availability.FieldHours, field.TypeFloat64, value)
+	if value, ok := _u.mutation.MonHours(); ok {
+		_spec.SetField(availability.FieldMonHours, field.TypeFloat64, value)
 	}
-	if value, ok := _u.mutation.AddedHours(); ok {
-		_spec.AddField(availability.FieldHours, field.TypeFloat64, value)
+	if value, ok := _u.mutation.AddedMonHours(); ok {
+		_spec.AddField(availability.FieldMonHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.TueHours(); ok {
+		_spec.SetField(availability.FieldTueHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedTueHours(); ok {
+		_spec.AddField(availability.FieldTueHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.WedHours(); ok {
+		_spec.SetField(availability.FieldWedHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedWedHours(); ok {
+		_spec.AddField(availability.FieldWedHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.ThuHours(); ok {
+		_spec.SetField(availability.FieldThuHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedThuHours(); ok {
+		_spec.AddField(availability.FieldThuHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.FriHours(); ok {
+		_spec.SetField(availability.FieldFriHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedFriHours(); ok {
+		_spec.AddField(availability.FieldFriHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.SatHours(); ok {
+		_spec.SetField(availability.FieldSatHours, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedSatHours(); ok {
+		_spec.AddField(availability.FieldSatHours, field.TypeFloat64, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

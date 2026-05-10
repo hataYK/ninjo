@@ -37,19 +37,29 @@ const (
 // AvailabilityMutation represents an operation that mutates the Availability nodes in the graph.
 type AvailabilityMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *uuid.UUID
-	day_of_week    *int8
-	addday_of_week *int8
-	hours          *float64
-	addhours       *float64
-	clearedFields  map[string]struct{}
-	user           *uuid.UUID
-	cleareduser    bool
-	done           bool
-	oldValue       func(context.Context) (*Availability, error)
-	predicates     []predicate.Availability
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	sun_hours     *float64
+	addsun_hours  *float64
+	mon_hours     *float64
+	addmon_hours  *float64
+	tue_hours     *float64
+	addtue_hours  *float64
+	wed_hours     *float64
+	addwed_hours  *float64
+	thu_hours     *float64
+	addthu_hours  *float64
+	fri_hours     *float64
+	addfri_hours  *float64
+	sat_hours     *float64
+	addsat_hours  *float64
+	clearedFields map[string]struct{}
+	user          *uuid.UUID
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*Availability, error)
+	predicates    []predicate.Availability
 }
 
 var _ ent.Mutation = (*AvailabilityMutation)(nil)
@@ -156,116 +166,396 @@ func (m *AvailabilityMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
-// SetDayOfWeek sets the "day_of_week" field.
-func (m *AvailabilityMutation) SetDayOfWeek(i int8) {
-	m.day_of_week = &i
-	m.addday_of_week = nil
+// SetSunHours sets the "sun_hours" field.
+func (m *AvailabilityMutation) SetSunHours(f float64) {
+	m.sun_hours = &f
+	m.addsun_hours = nil
 }
 
-// DayOfWeek returns the value of the "day_of_week" field in the mutation.
-func (m *AvailabilityMutation) DayOfWeek() (r int8, exists bool) {
-	v := m.day_of_week
+// SunHours returns the value of the "sun_hours" field in the mutation.
+func (m *AvailabilityMutation) SunHours() (r float64, exists bool) {
+	v := m.sun_hours
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDayOfWeek returns the old "day_of_week" field's value of the Availability entity.
+// OldSunHours returns the old "sun_hours" field's value of the Availability entity.
 // If the Availability object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AvailabilityMutation) OldDayOfWeek(ctx context.Context) (v int8, err error) {
+func (m *AvailabilityMutation) OldSunHours(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDayOfWeek is only allowed on UpdateOne operations")
+		return v, errors.New("OldSunHours is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDayOfWeek requires an ID field in the mutation")
+		return v, errors.New("OldSunHours requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDayOfWeek: %w", err)
+		return v, fmt.Errorf("querying old value for OldSunHours: %w", err)
 	}
-	return oldValue.DayOfWeek, nil
+	return oldValue.SunHours, nil
 }
 
-// AddDayOfWeek adds i to the "day_of_week" field.
-func (m *AvailabilityMutation) AddDayOfWeek(i int8) {
-	if m.addday_of_week != nil {
-		*m.addday_of_week += i
+// AddSunHours adds f to the "sun_hours" field.
+func (m *AvailabilityMutation) AddSunHours(f float64) {
+	if m.addsun_hours != nil {
+		*m.addsun_hours += f
 	} else {
-		m.addday_of_week = &i
+		m.addsun_hours = &f
 	}
 }
 
-// AddedDayOfWeek returns the value that was added to the "day_of_week" field in this mutation.
-func (m *AvailabilityMutation) AddedDayOfWeek() (r int8, exists bool) {
-	v := m.addday_of_week
+// AddedSunHours returns the value that was added to the "sun_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedSunHours() (r float64, exists bool) {
+	v := m.addsun_hours
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetDayOfWeek resets all changes to the "day_of_week" field.
-func (m *AvailabilityMutation) ResetDayOfWeek() {
-	m.day_of_week = nil
-	m.addday_of_week = nil
+// ResetSunHours resets all changes to the "sun_hours" field.
+func (m *AvailabilityMutation) ResetSunHours() {
+	m.sun_hours = nil
+	m.addsun_hours = nil
 }
 
-// SetHours sets the "hours" field.
-func (m *AvailabilityMutation) SetHours(f float64) {
-	m.hours = &f
-	m.addhours = nil
+// SetMonHours sets the "mon_hours" field.
+func (m *AvailabilityMutation) SetMonHours(f float64) {
+	m.mon_hours = &f
+	m.addmon_hours = nil
 }
 
-// Hours returns the value of the "hours" field in the mutation.
-func (m *AvailabilityMutation) Hours() (r float64, exists bool) {
-	v := m.hours
+// MonHours returns the value of the "mon_hours" field in the mutation.
+func (m *AvailabilityMutation) MonHours() (r float64, exists bool) {
+	v := m.mon_hours
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldHours returns the old "hours" field's value of the Availability entity.
+// OldMonHours returns the old "mon_hours" field's value of the Availability entity.
 // If the Availability object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AvailabilityMutation) OldHours(ctx context.Context) (v float64, err error) {
+func (m *AvailabilityMutation) OldMonHours(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHours is only allowed on UpdateOne operations")
+		return v, errors.New("OldMonHours is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHours requires an ID field in the mutation")
+		return v, errors.New("OldMonHours requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHours: %w", err)
+		return v, fmt.Errorf("querying old value for OldMonHours: %w", err)
 	}
-	return oldValue.Hours, nil
+	return oldValue.MonHours, nil
 }
 
-// AddHours adds f to the "hours" field.
-func (m *AvailabilityMutation) AddHours(f float64) {
-	if m.addhours != nil {
-		*m.addhours += f
+// AddMonHours adds f to the "mon_hours" field.
+func (m *AvailabilityMutation) AddMonHours(f float64) {
+	if m.addmon_hours != nil {
+		*m.addmon_hours += f
 	} else {
-		m.addhours = &f
+		m.addmon_hours = &f
 	}
 }
 
-// AddedHours returns the value that was added to the "hours" field in this mutation.
-func (m *AvailabilityMutation) AddedHours() (r float64, exists bool) {
-	v := m.addhours
+// AddedMonHours returns the value that was added to the "mon_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedMonHours() (r float64, exists bool) {
+	v := m.addmon_hours
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetHours resets all changes to the "hours" field.
-func (m *AvailabilityMutation) ResetHours() {
-	m.hours = nil
-	m.addhours = nil
+// ResetMonHours resets all changes to the "mon_hours" field.
+func (m *AvailabilityMutation) ResetMonHours() {
+	m.mon_hours = nil
+	m.addmon_hours = nil
+}
+
+// SetTueHours sets the "tue_hours" field.
+func (m *AvailabilityMutation) SetTueHours(f float64) {
+	m.tue_hours = &f
+	m.addtue_hours = nil
+}
+
+// TueHours returns the value of the "tue_hours" field in the mutation.
+func (m *AvailabilityMutation) TueHours() (r float64, exists bool) {
+	v := m.tue_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTueHours returns the old "tue_hours" field's value of the Availability entity.
+// If the Availability object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AvailabilityMutation) OldTueHours(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTueHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTueHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTueHours: %w", err)
+	}
+	return oldValue.TueHours, nil
+}
+
+// AddTueHours adds f to the "tue_hours" field.
+func (m *AvailabilityMutation) AddTueHours(f float64) {
+	if m.addtue_hours != nil {
+		*m.addtue_hours += f
+	} else {
+		m.addtue_hours = &f
+	}
+}
+
+// AddedTueHours returns the value that was added to the "tue_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedTueHours() (r float64, exists bool) {
+	v := m.addtue_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTueHours resets all changes to the "tue_hours" field.
+func (m *AvailabilityMutation) ResetTueHours() {
+	m.tue_hours = nil
+	m.addtue_hours = nil
+}
+
+// SetWedHours sets the "wed_hours" field.
+func (m *AvailabilityMutation) SetWedHours(f float64) {
+	m.wed_hours = &f
+	m.addwed_hours = nil
+}
+
+// WedHours returns the value of the "wed_hours" field in the mutation.
+func (m *AvailabilityMutation) WedHours() (r float64, exists bool) {
+	v := m.wed_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWedHours returns the old "wed_hours" field's value of the Availability entity.
+// If the Availability object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AvailabilityMutation) OldWedHours(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWedHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWedHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWedHours: %w", err)
+	}
+	return oldValue.WedHours, nil
+}
+
+// AddWedHours adds f to the "wed_hours" field.
+func (m *AvailabilityMutation) AddWedHours(f float64) {
+	if m.addwed_hours != nil {
+		*m.addwed_hours += f
+	} else {
+		m.addwed_hours = &f
+	}
+}
+
+// AddedWedHours returns the value that was added to the "wed_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedWedHours() (r float64, exists bool) {
+	v := m.addwed_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWedHours resets all changes to the "wed_hours" field.
+func (m *AvailabilityMutation) ResetWedHours() {
+	m.wed_hours = nil
+	m.addwed_hours = nil
+}
+
+// SetThuHours sets the "thu_hours" field.
+func (m *AvailabilityMutation) SetThuHours(f float64) {
+	m.thu_hours = &f
+	m.addthu_hours = nil
+}
+
+// ThuHours returns the value of the "thu_hours" field in the mutation.
+func (m *AvailabilityMutation) ThuHours() (r float64, exists bool) {
+	v := m.thu_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldThuHours returns the old "thu_hours" field's value of the Availability entity.
+// If the Availability object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AvailabilityMutation) OldThuHours(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldThuHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldThuHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldThuHours: %w", err)
+	}
+	return oldValue.ThuHours, nil
+}
+
+// AddThuHours adds f to the "thu_hours" field.
+func (m *AvailabilityMutation) AddThuHours(f float64) {
+	if m.addthu_hours != nil {
+		*m.addthu_hours += f
+	} else {
+		m.addthu_hours = &f
+	}
+}
+
+// AddedThuHours returns the value that was added to the "thu_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedThuHours() (r float64, exists bool) {
+	v := m.addthu_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetThuHours resets all changes to the "thu_hours" field.
+func (m *AvailabilityMutation) ResetThuHours() {
+	m.thu_hours = nil
+	m.addthu_hours = nil
+}
+
+// SetFriHours sets the "fri_hours" field.
+func (m *AvailabilityMutation) SetFriHours(f float64) {
+	m.fri_hours = &f
+	m.addfri_hours = nil
+}
+
+// FriHours returns the value of the "fri_hours" field in the mutation.
+func (m *AvailabilityMutation) FriHours() (r float64, exists bool) {
+	v := m.fri_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFriHours returns the old "fri_hours" field's value of the Availability entity.
+// If the Availability object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AvailabilityMutation) OldFriHours(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFriHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFriHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFriHours: %w", err)
+	}
+	return oldValue.FriHours, nil
+}
+
+// AddFriHours adds f to the "fri_hours" field.
+func (m *AvailabilityMutation) AddFriHours(f float64) {
+	if m.addfri_hours != nil {
+		*m.addfri_hours += f
+	} else {
+		m.addfri_hours = &f
+	}
+}
+
+// AddedFriHours returns the value that was added to the "fri_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedFriHours() (r float64, exists bool) {
+	v := m.addfri_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFriHours resets all changes to the "fri_hours" field.
+func (m *AvailabilityMutation) ResetFriHours() {
+	m.fri_hours = nil
+	m.addfri_hours = nil
+}
+
+// SetSatHours sets the "sat_hours" field.
+func (m *AvailabilityMutation) SetSatHours(f float64) {
+	m.sat_hours = &f
+	m.addsat_hours = nil
+}
+
+// SatHours returns the value of the "sat_hours" field in the mutation.
+func (m *AvailabilityMutation) SatHours() (r float64, exists bool) {
+	v := m.sat_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSatHours returns the old "sat_hours" field's value of the Availability entity.
+// If the Availability object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AvailabilityMutation) OldSatHours(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSatHours is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSatHours requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSatHours: %w", err)
+	}
+	return oldValue.SatHours, nil
+}
+
+// AddSatHours adds f to the "sat_hours" field.
+func (m *AvailabilityMutation) AddSatHours(f float64) {
+	if m.addsat_hours != nil {
+		*m.addsat_hours += f
+	} else {
+		m.addsat_hours = &f
+	}
+}
+
+// AddedSatHours returns the value that was added to the "sat_hours" field in this mutation.
+func (m *AvailabilityMutation) AddedSatHours() (r float64, exists bool) {
+	v := m.addsat_hours
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSatHours resets all changes to the "sat_hours" field.
+func (m *AvailabilityMutation) ResetSatHours() {
+	m.sat_hours = nil
+	m.addsat_hours = nil
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
@@ -341,12 +631,27 @@ func (m *AvailabilityMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AvailabilityMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.day_of_week != nil {
-		fields = append(fields, availability.FieldDayOfWeek)
+	fields := make([]string, 0, 7)
+	if m.sun_hours != nil {
+		fields = append(fields, availability.FieldSunHours)
 	}
-	if m.hours != nil {
-		fields = append(fields, availability.FieldHours)
+	if m.mon_hours != nil {
+		fields = append(fields, availability.FieldMonHours)
+	}
+	if m.tue_hours != nil {
+		fields = append(fields, availability.FieldTueHours)
+	}
+	if m.wed_hours != nil {
+		fields = append(fields, availability.FieldWedHours)
+	}
+	if m.thu_hours != nil {
+		fields = append(fields, availability.FieldThuHours)
+	}
+	if m.fri_hours != nil {
+		fields = append(fields, availability.FieldFriHours)
+	}
+	if m.sat_hours != nil {
+		fields = append(fields, availability.FieldSatHours)
 	}
 	return fields
 }
@@ -356,10 +661,20 @@ func (m *AvailabilityMutation) Fields() []string {
 // schema.
 func (m *AvailabilityMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case availability.FieldDayOfWeek:
-		return m.DayOfWeek()
-	case availability.FieldHours:
-		return m.Hours()
+	case availability.FieldSunHours:
+		return m.SunHours()
+	case availability.FieldMonHours:
+		return m.MonHours()
+	case availability.FieldTueHours:
+		return m.TueHours()
+	case availability.FieldWedHours:
+		return m.WedHours()
+	case availability.FieldThuHours:
+		return m.ThuHours()
+	case availability.FieldFriHours:
+		return m.FriHours()
+	case availability.FieldSatHours:
+		return m.SatHours()
 	}
 	return nil, false
 }
@@ -369,10 +684,20 @@ func (m *AvailabilityMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *AvailabilityMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case availability.FieldDayOfWeek:
-		return m.OldDayOfWeek(ctx)
-	case availability.FieldHours:
-		return m.OldHours(ctx)
+	case availability.FieldSunHours:
+		return m.OldSunHours(ctx)
+	case availability.FieldMonHours:
+		return m.OldMonHours(ctx)
+	case availability.FieldTueHours:
+		return m.OldTueHours(ctx)
+	case availability.FieldWedHours:
+		return m.OldWedHours(ctx)
+	case availability.FieldThuHours:
+		return m.OldThuHours(ctx)
+	case availability.FieldFriHours:
+		return m.OldFriHours(ctx)
+	case availability.FieldSatHours:
+		return m.OldSatHours(ctx)
 	}
 	return nil, fmt.Errorf("unknown Availability field %s", name)
 }
@@ -382,19 +707,54 @@ func (m *AvailabilityMutation) OldField(ctx context.Context, name string) (ent.V
 // type.
 func (m *AvailabilityMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case availability.FieldDayOfWeek:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDayOfWeek(v)
-		return nil
-	case availability.FieldHours:
+	case availability.FieldSunHours:
 		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetHours(v)
+		m.SetSunHours(v)
+		return nil
+	case availability.FieldMonHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMonHours(v)
+		return nil
+	case availability.FieldTueHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTueHours(v)
+		return nil
+	case availability.FieldWedHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWedHours(v)
+		return nil
+	case availability.FieldThuHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetThuHours(v)
+		return nil
+	case availability.FieldFriHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFriHours(v)
+		return nil
+	case availability.FieldSatHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSatHours(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Availability field %s", name)
@@ -404,11 +764,26 @@ func (m *AvailabilityMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *AvailabilityMutation) AddedFields() []string {
 	var fields []string
-	if m.addday_of_week != nil {
-		fields = append(fields, availability.FieldDayOfWeek)
+	if m.addsun_hours != nil {
+		fields = append(fields, availability.FieldSunHours)
 	}
-	if m.addhours != nil {
-		fields = append(fields, availability.FieldHours)
+	if m.addmon_hours != nil {
+		fields = append(fields, availability.FieldMonHours)
+	}
+	if m.addtue_hours != nil {
+		fields = append(fields, availability.FieldTueHours)
+	}
+	if m.addwed_hours != nil {
+		fields = append(fields, availability.FieldWedHours)
+	}
+	if m.addthu_hours != nil {
+		fields = append(fields, availability.FieldThuHours)
+	}
+	if m.addfri_hours != nil {
+		fields = append(fields, availability.FieldFriHours)
+	}
+	if m.addsat_hours != nil {
+		fields = append(fields, availability.FieldSatHours)
 	}
 	return fields
 }
@@ -418,10 +793,20 @@ func (m *AvailabilityMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *AvailabilityMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case availability.FieldDayOfWeek:
-		return m.AddedDayOfWeek()
-	case availability.FieldHours:
-		return m.AddedHours()
+	case availability.FieldSunHours:
+		return m.AddedSunHours()
+	case availability.FieldMonHours:
+		return m.AddedMonHours()
+	case availability.FieldTueHours:
+		return m.AddedTueHours()
+	case availability.FieldWedHours:
+		return m.AddedWedHours()
+	case availability.FieldThuHours:
+		return m.AddedThuHours()
+	case availability.FieldFriHours:
+		return m.AddedFriHours()
+	case availability.FieldSatHours:
+		return m.AddedSatHours()
 	}
 	return nil, false
 }
@@ -431,19 +816,54 @@ func (m *AvailabilityMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *AvailabilityMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case availability.FieldDayOfWeek:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddDayOfWeek(v)
-		return nil
-	case availability.FieldHours:
+	case availability.FieldSunHours:
 		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddHours(v)
+		m.AddSunHours(v)
+		return nil
+	case availability.FieldMonHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMonHours(v)
+		return nil
+	case availability.FieldTueHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTueHours(v)
+		return nil
+	case availability.FieldWedHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWedHours(v)
+		return nil
+	case availability.FieldThuHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddThuHours(v)
+		return nil
+	case availability.FieldFriHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFriHours(v)
+		return nil
+	case availability.FieldSatHours:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSatHours(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Availability numeric field %s", name)
@@ -472,11 +892,26 @@ func (m *AvailabilityMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *AvailabilityMutation) ResetField(name string) error {
 	switch name {
-	case availability.FieldDayOfWeek:
-		m.ResetDayOfWeek()
+	case availability.FieldSunHours:
+		m.ResetSunHours()
 		return nil
-	case availability.FieldHours:
-		m.ResetHours()
+	case availability.FieldMonHours:
+		m.ResetMonHours()
+		return nil
+	case availability.FieldTueHours:
+		m.ResetTueHours()
+		return nil
+	case availability.FieldWedHours:
+		m.ResetWedHours()
+		return nil
+	case availability.FieldThuHours:
+		m.ResetThuHours()
+		return nil
+	case availability.FieldFriHours:
+		m.ResetFriHours()
+		return nil
+	case availability.FieldSatHours:
+		m.ResetSatHours()
 		return nil
 	}
 	return fmt.Errorf("unknown Availability field %s", name)

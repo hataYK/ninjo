@@ -54,94 +54,319 @@ func IDLTE(id uuid.UUID) predicate.Availability {
 	return predicate.Availability(sql.FieldLTE(FieldID, id))
 }
 
-// DayOfWeek applies equality check predicate on the "day_of_week" field. It's identical to DayOfWeekEQ.
-func DayOfWeek(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldEQ(FieldDayOfWeek, v))
+// SunHours applies equality check predicate on the "sun_hours" field. It's identical to SunHoursEQ.
+func SunHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldSunHours, v))
 }
 
-// Hours applies equality check predicate on the "hours" field. It's identical to HoursEQ.
-func Hours(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldEQ(FieldHours, v))
+// MonHours applies equality check predicate on the "mon_hours" field. It's identical to MonHoursEQ.
+func MonHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldMonHours, v))
 }
 
-// DayOfWeekEQ applies the EQ predicate on the "day_of_week" field.
-func DayOfWeekEQ(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldEQ(FieldDayOfWeek, v))
+// TueHours applies equality check predicate on the "tue_hours" field. It's identical to TueHoursEQ.
+func TueHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldTueHours, v))
 }
 
-// DayOfWeekNEQ applies the NEQ predicate on the "day_of_week" field.
-func DayOfWeekNEQ(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldNEQ(FieldDayOfWeek, v))
+// WedHours applies equality check predicate on the "wed_hours" field. It's identical to WedHoursEQ.
+func WedHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldWedHours, v))
 }
 
-// DayOfWeekIn applies the In predicate on the "day_of_week" field.
-func DayOfWeekIn(vs ...int8) predicate.Availability {
-	return predicate.Availability(sql.FieldIn(FieldDayOfWeek, vs...))
+// ThuHours applies equality check predicate on the "thu_hours" field. It's identical to ThuHoursEQ.
+func ThuHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldThuHours, v))
 }
 
-// DayOfWeekNotIn applies the NotIn predicate on the "day_of_week" field.
-func DayOfWeekNotIn(vs ...int8) predicate.Availability {
-	return predicate.Availability(sql.FieldNotIn(FieldDayOfWeek, vs...))
+// FriHours applies equality check predicate on the "fri_hours" field. It's identical to FriHoursEQ.
+func FriHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldFriHours, v))
 }
 
-// DayOfWeekGT applies the GT predicate on the "day_of_week" field.
-func DayOfWeekGT(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldGT(FieldDayOfWeek, v))
+// SatHours applies equality check predicate on the "sat_hours" field. It's identical to SatHoursEQ.
+func SatHours(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldSatHours, v))
 }
 
-// DayOfWeekGTE applies the GTE predicate on the "day_of_week" field.
-func DayOfWeekGTE(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldGTE(FieldDayOfWeek, v))
+// SunHoursEQ applies the EQ predicate on the "sun_hours" field.
+func SunHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldSunHours, v))
 }
 
-// DayOfWeekLT applies the LT predicate on the "day_of_week" field.
-func DayOfWeekLT(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldLT(FieldDayOfWeek, v))
+// SunHoursNEQ applies the NEQ predicate on the "sun_hours" field.
+func SunHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldSunHours, v))
 }
 
-// DayOfWeekLTE applies the LTE predicate on the "day_of_week" field.
-func DayOfWeekLTE(v int8) predicate.Availability {
-	return predicate.Availability(sql.FieldLTE(FieldDayOfWeek, v))
+// SunHoursIn applies the In predicate on the "sun_hours" field.
+func SunHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldSunHours, vs...))
 }
 
-// HoursEQ applies the EQ predicate on the "hours" field.
-func HoursEQ(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldEQ(FieldHours, v))
+// SunHoursNotIn applies the NotIn predicate on the "sun_hours" field.
+func SunHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldSunHours, vs...))
 }
 
-// HoursNEQ applies the NEQ predicate on the "hours" field.
-func HoursNEQ(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldNEQ(FieldHours, v))
+// SunHoursGT applies the GT predicate on the "sun_hours" field.
+func SunHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldSunHours, v))
 }
 
-// HoursIn applies the In predicate on the "hours" field.
-func HoursIn(vs ...float64) predicate.Availability {
-	return predicate.Availability(sql.FieldIn(FieldHours, vs...))
+// SunHoursGTE applies the GTE predicate on the "sun_hours" field.
+func SunHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldSunHours, v))
 }
 
-// HoursNotIn applies the NotIn predicate on the "hours" field.
-func HoursNotIn(vs ...float64) predicate.Availability {
-	return predicate.Availability(sql.FieldNotIn(FieldHours, vs...))
+// SunHoursLT applies the LT predicate on the "sun_hours" field.
+func SunHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldSunHours, v))
 }
 
-// HoursGT applies the GT predicate on the "hours" field.
-func HoursGT(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldGT(FieldHours, v))
+// SunHoursLTE applies the LTE predicate on the "sun_hours" field.
+func SunHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldSunHours, v))
 }
 
-// HoursGTE applies the GTE predicate on the "hours" field.
-func HoursGTE(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldGTE(FieldHours, v))
+// MonHoursEQ applies the EQ predicate on the "mon_hours" field.
+func MonHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldMonHours, v))
 }
 
-// HoursLT applies the LT predicate on the "hours" field.
-func HoursLT(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldLT(FieldHours, v))
+// MonHoursNEQ applies the NEQ predicate on the "mon_hours" field.
+func MonHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldMonHours, v))
 }
 
-// HoursLTE applies the LTE predicate on the "hours" field.
-func HoursLTE(v float64) predicate.Availability {
-	return predicate.Availability(sql.FieldLTE(FieldHours, v))
+// MonHoursIn applies the In predicate on the "mon_hours" field.
+func MonHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldMonHours, vs...))
+}
+
+// MonHoursNotIn applies the NotIn predicate on the "mon_hours" field.
+func MonHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldMonHours, vs...))
+}
+
+// MonHoursGT applies the GT predicate on the "mon_hours" field.
+func MonHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldMonHours, v))
+}
+
+// MonHoursGTE applies the GTE predicate on the "mon_hours" field.
+func MonHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldMonHours, v))
+}
+
+// MonHoursLT applies the LT predicate on the "mon_hours" field.
+func MonHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldMonHours, v))
+}
+
+// MonHoursLTE applies the LTE predicate on the "mon_hours" field.
+func MonHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldMonHours, v))
+}
+
+// TueHoursEQ applies the EQ predicate on the "tue_hours" field.
+func TueHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldTueHours, v))
+}
+
+// TueHoursNEQ applies the NEQ predicate on the "tue_hours" field.
+func TueHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldTueHours, v))
+}
+
+// TueHoursIn applies the In predicate on the "tue_hours" field.
+func TueHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldTueHours, vs...))
+}
+
+// TueHoursNotIn applies the NotIn predicate on the "tue_hours" field.
+func TueHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldTueHours, vs...))
+}
+
+// TueHoursGT applies the GT predicate on the "tue_hours" field.
+func TueHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldTueHours, v))
+}
+
+// TueHoursGTE applies the GTE predicate on the "tue_hours" field.
+func TueHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldTueHours, v))
+}
+
+// TueHoursLT applies the LT predicate on the "tue_hours" field.
+func TueHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldTueHours, v))
+}
+
+// TueHoursLTE applies the LTE predicate on the "tue_hours" field.
+func TueHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldTueHours, v))
+}
+
+// WedHoursEQ applies the EQ predicate on the "wed_hours" field.
+func WedHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldWedHours, v))
+}
+
+// WedHoursNEQ applies the NEQ predicate on the "wed_hours" field.
+func WedHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldWedHours, v))
+}
+
+// WedHoursIn applies the In predicate on the "wed_hours" field.
+func WedHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldWedHours, vs...))
+}
+
+// WedHoursNotIn applies the NotIn predicate on the "wed_hours" field.
+func WedHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldWedHours, vs...))
+}
+
+// WedHoursGT applies the GT predicate on the "wed_hours" field.
+func WedHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldWedHours, v))
+}
+
+// WedHoursGTE applies the GTE predicate on the "wed_hours" field.
+func WedHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldWedHours, v))
+}
+
+// WedHoursLT applies the LT predicate on the "wed_hours" field.
+func WedHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldWedHours, v))
+}
+
+// WedHoursLTE applies the LTE predicate on the "wed_hours" field.
+func WedHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldWedHours, v))
+}
+
+// ThuHoursEQ applies the EQ predicate on the "thu_hours" field.
+func ThuHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldThuHours, v))
+}
+
+// ThuHoursNEQ applies the NEQ predicate on the "thu_hours" field.
+func ThuHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldThuHours, v))
+}
+
+// ThuHoursIn applies the In predicate on the "thu_hours" field.
+func ThuHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldThuHours, vs...))
+}
+
+// ThuHoursNotIn applies the NotIn predicate on the "thu_hours" field.
+func ThuHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldThuHours, vs...))
+}
+
+// ThuHoursGT applies the GT predicate on the "thu_hours" field.
+func ThuHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldThuHours, v))
+}
+
+// ThuHoursGTE applies the GTE predicate on the "thu_hours" field.
+func ThuHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldThuHours, v))
+}
+
+// ThuHoursLT applies the LT predicate on the "thu_hours" field.
+func ThuHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldThuHours, v))
+}
+
+// ThuHoursLTE applies the LTE predicate on the "thu_hours" field.
+func ThuHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldThuHours, v))
+}
+
+// FriHoursEQ applies the EQ predicate on the "fri_hours" field.
+func FriHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldFriHours, v))
+}
+
+// FriHoursNEQ applies the NEQ predicate on the "fri_hours" field.
+func FriHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldFriHours, v))
+}
+
+// FriHoursIn applies the In predicate on the "fri_hours" field.
+func FriHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldFriHours, vs...))
+}
+
+// FriHoursNotIn applies the NotIn predicate on the "fri_hours" field.
+func FriHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldFriHours, vs...))
+}
+
+// FriHoursGT applies the GT predicate on the "fri_hours" field.
+func FriHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldFriHours, v))
+}
+
+// FriHoursGTE applies the GTE predicate on the "fri_hours" field.
+func FriHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldFriHours, v))
+}
+
+// FriHoursLT applies the LT predicate on the "fri_hours" field.
+func FriHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldFriHours, v))
+}
+
+// FriHoursLTE applies the LTE predicate on the "fri_hours" field.
+func FriHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldFriHours, v))
+}
+
+// SatHoursEQ applies the EQ predicate on the "sat_hours" field.
+func SatHoursEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldEQ(FieldSatHours, v))
+}
+
+// SatHoursNEQ applies the NEQ predicate on the "sat_hours" field.
+func SatHoursNEQ(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNEQ(FieldSatHours, v))
+}
+
+// SatHoursIn applies the In predicate on the "sat_hours" field.
+func SatHoursIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldIn(FieldSatHours, vs...))
+}
+
+// SatHoursNotIn applies the NotIn predicate on the "sat_hours" field.
+func SatHoursNotIn(vs ...float64) predicate.Availability {
+	return predicate.Availability(sql.FieldNotIn(FieldSatHours, vs...))
+}
+
+// SatHoursGT applies the GT predicate on the "sat_hours" field.
+func SatHoursGT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGT(FieldSatHours, v))
+}
+
+// SatHoursGTE applies the GTE predicate on the "sat_hours" field.
+func SatHoursGTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldGTE(FieldSatHours, v))
+}
+
+// SatHoursLT applies the LT predicate on the "sat_hours" field.
+func SatHoursLT(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLT(FieldSatHours, v))
+}
+
+// SatHoursLTE applies the LTE predicate on the "sat_hours" field.
+func SatHoursLTE(v float64) predicate.Availability {
+	return predicate.Availability(sql.FieldLTE(FieldSatHours, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

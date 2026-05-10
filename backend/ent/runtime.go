@@ -19,14 +19,146 @@ import (
 func init() {
 	availabilityFields := schema.Availability{}.Fields()
 	_ = availabilityFields
-	// availabilityDescDayOfWeek is the schema descriptor for day_of_week field.
-	availabilityDescDayOfWeek := availabilityFields[1].Descriptor()
-	// availability.DayOfWeekValidator is a validator for the "day_of_week" field. It is called by the builders before save.
-	availability.DayOfWeekValidator = availabilityDescDayOfWeek.Validators[0].(func(int8) error)
-	// availabilityDescHours is the schema descriptor for hours field.
-	availabilityDescHours := availabilityFields[2].Descriptor()
-	// availability.HoursValidator is a validator for the "hours" field. It is called by the builders before save.
-	availability.HoursValidator = availabilityDescHours.Validators[0].(func(float64) error)
+	// availabilityDescSunHours is the schema descriptor for sun_hours field.
+	availabilityDescSunHours := availabilityFields[1].Descriptor()
+	// availability.DefaultSunHours holds the default value on creation for the sun_hours field.
+	availability.DefaultSunHours = availabilityDescSunHours.Default.(float64)
+	// availability.SunHoursValidator is a validator for the "sun_hours" field. It is called by the builders before save.
+	availability.SunHoursValidator = func() func(float64) error {
+		validators := availabilityDescSunHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(sun_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(sun_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescMonHours is the schema descriptor for mon_hours field.
+	availabilityDescMonHours := availabilityFields[2].Descriptor()
+	// availability.DefaultMonHours holds the default value on creation for the mon_hours field.
+	availability.DefaultMonHours = availabilityDescMonHours.Default.(float64)
+	// availability.MonHoursValidator is a validator for the "mon_hours" field. It is called by the builders before save.
+	availability.MonHoursValidator = func() func(float64) error {
+		validators := availabilityDescMonHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(mon_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(mon_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescTueHours is the schema descriptor for tue_hours field.
+	availabilityDescTueHours := availabilityFields[3].Descriptor()
+	// availability.DefaultTueHours holds the default value on creation for the tue_hours field.
+	availability.DefaultTueHours = availabilityDescTueHours.Default.(float64)
+	// availability.TueHoursValidator is a validator for the "tue_hours" field. It is called by the builders before save.
+	availability.TueHoursValidator = func() func(float64) error {
+		validators := availabilityDescTueHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(tue_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(tue_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescWedHours is the schema descriptor for wed_hours field.
+	availabilityDescWedHours := availabilityFields[4].Descriptor()
+	// availability.DefaultWedHours holds the default value on creation for the wed_hours field.
+	availability.DefaultWedHours = availabilityDescWedHours.Default.(float64)
+	// availability.WedHoursValidator is a validator for the "wed_hours" field. It is called by the builders before save.
+	availability.WedHoursValidator = func() func(float64) error {
+		validators := availabilityDescWedHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(wed_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(wed_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescThuHours is the schema descriptor for thu_hours field.
+	availabilityDescThuHours := availabilityFields[5].Descriptor()
+	// availability.DefaultThuHours holds the default value on creation for the thu_hours field.
+	availability.DefaultThuHours = availabilityDescThuHours.Default.(float64)
+	// availability.ThuHoursValidator is a validator for the "thu_hours" field. It is called by the builders before save.
+	availability.ThuHoursValidator = func() func(float64) error {
+		validators := availabilityDescThuHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(thu_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(thu_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescFriHours is the schema descriptor for fri_hours field.
+	availabilityDescFriHours := availabilityFields[6].Descriptor()
+	// availability.DefaultFriHours holds the default value on creation for the fri_hours field.
+	availability.DefaultFriHours = availabilityDescFriHours.Default.(float64)
+	// availability.FriHoursValidator is a validator for the "fri_hours" field. It is called by the builders before save.
+	availability.FriHoursValidator = func() func(float64) error {
+		validators := availabilityDescFriHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(fri_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(fri_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// availabilityDescSatHours is the schema descriptor for sat_hours field.
+	availabilityDescSatHours := availabilityFields[7].Descriptor()
+	// availability.DefaultSatHours holds the default value on creation for the sat_hours field.
+	availability.DefaultSatHours = availabilityDescSatHours.Default.(float64)
+	// availability.SatHoursValidator is a validator for the "sat_hours" field. It is called by the builders before save.
+	availability.SatHoursValidator = func() func(float64) error {
+		validators := availabilityDescSatHours.Validators
+		fns := [...]func(float64) error{
+			validators[0].(func(float64) error),
+			validators[1].(func(float64) error),
+		}
+		return func(sat_hours float64) error {
+			for _, fn := range fns {
+				if err := fn(sat_hours); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// availabilityDescID is the schema descriptor for id field.
 	availabilityDescID := availabilityFields[0].Descriptor()
 	// availability.DefaultID holds the default value on creation for the id field.

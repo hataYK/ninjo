@@ -18,10 +18,20 @@ type Availability struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// DayOfWeek holds the value of the "day_of_week" field.
-	DayOfWeek int8 `json:"day_of_week,omitempty"`
-	// Hours holds the value of the "hours" field.
-	Hours float64 `json:"hours,omitempty"`
+	// SunHours holds the value of the "sun_hours" field.
+	SunHours float64 `json:"sun_hours,omitempty"`
+	// MonHours holds the value of the "mon_hours" field.
+	MonHours float64 `json:"mon_hours,omitempty"`
+	// TueHours holds the value of the "tue_hours" field.
+	TueHours float64 `json:"tue_hours,omitempty"`
+	// WedHours holds the value of the "wed_hours" field.
+	WedHours float64 `json:"wed_hours,omitempty"`
+	// ThuHours holds the value of the "thu_hours" field.
+	ThuHours float64 `json:"thu_hours,omitempty"`
+	// FriHours holds the value of the "fri_hours" field.
+	FriHours float64 `json:"fri_hours,omitempty"`
+	// SatHours holds the value of the "sat_hours" field.
+	SatHours float64 `json:"sat_hours,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AvailabilityQuery when eager-loading is set.
 	Edges               AvailabilityEdges `json:"edges"`
@@ -54,10 +64,8 @@ func (*Availability) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case availability.FieldHours:
+		case availability.FieldSunHours, availability.FieldMonHours, availability.FieldTueHours, availability.FieldWedHours, availability.FieldThuHours, availability.FieldFriHours, availability.FieldSatHours:
 			values[i] = new(sql.NullFloat64)
-		case availability.FieldDayOfWeek:
-			values[i] = new(sql.NullInt64)
 		case availability.FieldID:
 			values[i] = new(uuid.UUID)
 		case availability.ForeignKeys[0]: // user_availabilities
@@ -83,17 +91,47 @@ func (_m *Availability) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.ID = *value
 			}
-		case availability.FieldDayOfWeek:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field day_of_week", values[i])
-			} else if value.Valid {
-				_m.DayOfWeek = int8(value.Int64)
-			}
-		case availability.FieldHours:
+		case availability.FieldSunHours:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field hours", values[i])
+				return fmt.Errorf("unexpected type %T for field sun_hours", values[i])
 			} else if value.Valid {
-				_m.Hours = value.Float64
+				_m.SunHours = value.Float64
+			}
+		case availability.FieldMonHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field mon_hours", values[i])
+			} else if value.Valid {
+				_m.MonHours = value.Float64
+			}
+		case availability.FieldTueHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field tue_hours", values[i])
+			} else if value.Valid {
+				_m.TueHours = value.Float64
+			}
+		case availability.FieldWedHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field wed_hours", values[i])
+			} else if value.Valid {
+				_m.WedHours = value.Float64
+			}
+		case availability.FieldThuHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field thu_hours", values[i])
+			} else if value.Valid {
+				_m.ThuHours = value.Float64
+			}
+		case availability.FieldFriHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field fri_hours", values[i])
+			} else if value.Valid {
+				_m.FriHours = value.Float64
+			}
+		case availability.FieldSatHours:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field sat_hours", values[i])
+			} else if value.Valid {
+				_m.SatHours = value.Float64
 			}
 		case availability.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -143,11 +181,26 @@ func (_m *Availability) String() string {
 	var builder strings.Builder
 	builder.WriteString("Availability(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("day_of_week=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DayOfWeek))
+	builder.WriteString("sun_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SunHours))
 	builder.WriteString(", ")
-	builder.WriteString("hours=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Hours))
+	builder.WriteString("mon_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MonHours))
+	builder.WriteString(", ")
+	builder.WriteString("tue_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TueHours))
+	builder.WriteString(", ")
+	builder.WriteString("wed_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WedHours))
+	builder.WriteString(", ")
+	builder.WriteString("thu_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ThuHours))
+	builder.WriteString(", ")
+	builder.WriteString("fri_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FriHours))
+	builder.WriteString(", ")
+	builder.WriteString("sat_hours=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SatHours))
 	builder.WriteByte(')')
 	return builder.String()
 }
