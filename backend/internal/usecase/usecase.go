@@ -33,3 +33,7 @@ func (u *Usecase) Avatar() *AvatarUsecase {
 func (u *Usecase) Availability() *AvailabilityUsecase {
 	return NewAvailabilityUsecase(u.config.DS.Availability())
 }
+
+func (u *Usecase) Plan() *PlanUsecase {
+	return NewPlanUsecase(u.config.DS.Plan(), u.config.DS.Availability())
+}
