@@ -283,12 +283,16 @@ func init() {
 			return nil
 		}
 	}()
+	// userDescAvatarPresetID is the schema descriptor for avatar_preset_id field.
+	userDescAvatarPresetID := userFields[4].Descriptor()
+	// user.AvatarPresetIDValidator is a validator for the "avatar_preset_id" field. It is called by the builders before save.
+	user.AvatarPresetIDValidator = userDescAvatarPresetID.Validators[0].(func(string) error)
 	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[4].Descriptor()
+	userDescCreatedAt := userFields[5].Descriptor()
 	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
 	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[5].Descriptor()
+	userDescUpdatedAt := userFields[6].Descriptor()
 	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

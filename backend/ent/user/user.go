@@ -21,6 +21,8 @@ const (
 	FieldPasswordHash = "password_hash"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
+	// FieldAvatarPresetID holds the string denoting the avatar_preset_id field in the database.
+	FieldAvatarPresetID = "avatar_preset_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -53,6 +55,7 @@ var Columns = []string{
 	FieldEmail,
 	FieldPasswordHash,
 	FieldDisplayName,
+	FieldAvatarPresetID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -74,6 +77,8 @@ var (
 	PasswordHashValidator func(string) error
 	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	DisplayNameValidator func(string) error
+	// AvatarPresetIDValidator is a validator for the "avatar_preset_id" field. It is called by the builders before save.
+	AvatarPresetIDValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -105,6 +110,11 @@ func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 // ByDisplayName orders the results by the display_name field.
 func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByAvatarPresetID orders the results by the avatar_preset_id field.
+func ByAvatarPresetID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarPresetID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

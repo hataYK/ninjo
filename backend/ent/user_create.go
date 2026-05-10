@@ -41,6 +41,20 @@ func (_c *UserCreate) SetDisplayName(v string) *UserCreate {
 	return _c
 }
 
+// SetAvatarPresetID sets the "avatar_preset_id" field.
+func (_c *UserCreate) SetAvatarPresetID(v string) *UserCreate {
+	_c.mutation.SetAvatarPresetID(v)
+	return _c
+}
+
+// SetNillableAvatarPresetID sets the "avatar_preset_id" field if the given value is not nil.
+func (_c *UserCreate) SetNillableAvatarPresetID(v *string) *UserCreate {
+	if v != nil {
+		_c.SetAvatarPresetID(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *UserCreate) SetCreatedAt(v time.Time) *UserCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -188,6 +202,11 @@ func (_c *UserCreate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "User.display_name": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.AvatarPresetID(); ok {
+		if err := user.AvatarPresetIDValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_preset_id", err: fmt.Errorf(`ent: validator failed for field "User.avatar_preset_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
 	}
@@ -240,6 +259,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayName(); ok {
 		_spec.SetField(user.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
+	}
+	if value, ok := _c.mutation.AvatarPresetID(); ok {
+		_spec.SetField(user.FieldAvatarPresetID, field.TypeString, value)
+		_node.AvatarPresetID = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)

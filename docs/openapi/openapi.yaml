@@ -92,6 +92,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /avatar:
+    get:
+      operationId: getAvatar
+      summary: アバター設定とスキルサマリーを取得
+      tags: [avatar]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateAvatar
+      summary: アバターのプリセットを設定/変更
+      tags: [avatar]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAvatarRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvatarPresetResponse"
+        "400":
+          description: 無効なプリセットID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /availability:
     get:
       operationId: getAvailability
@@ -244,6 +296,43 @@ components:
             $ref: "#/components/schemas/AvailabilityItem"
           minItems: 7
           maxItems: 7
+
+    AvatarResponse:
+      type: object
+      required: [avatar_preset_id, skill_count, skill_categories]
+      properties:
+        avatar_preset_id:
+          type: string
+        skill_count:
+          type: integer
+        skill_categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillCategoryCount"
+
+    SkillCategoryCount:
+      type: object
+      required: [category, count]
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+
+    UpdateAvatarRequest:
+      type: object
+      required: [avatar_preset_id]
+      properties:
+        avatar_preset_id:
+          type: string
+          description: "preset_01 〜 preset_12"
+
+    AvatarPresetResponse:
+      type: object
+      required: [avatar_preset_id]
+      properties:
+        avatar_preset_id:
+          type: string
 
     ErrorResponse:
       type: object

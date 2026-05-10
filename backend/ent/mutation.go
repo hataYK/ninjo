@@ -2860,6 +2860,7 @@ type UserMutation struct {
 	email                 *string
 	password_hash         *string
 	display_name          *string
+	avatar_preset_id      *string
 	created_at            *time.Time
 	updated_at            *time.Time
 	clearedFields         map[string]struct{}
@@ -3086,6 +3087,55 @@ func (m *UserMutation) ResetDisplayName() {
 	m.display_name = nil
 }
 
+// SetAvatarPresetID sets the "avatar_preset_id" field.
+func (m *UserMutation) SetAvatarPresetID(s string) {
+	m.avatar_preset_id = &s
+}
+
+// AvatarPresetID returns the value of the "avatar_preset_id" field in the mutation.
+func (m *UserMutation) AvatarPresetID() (r string, exists bool) {
+	v := m.avatar_preset_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAvatarPresetID returns the old "avatar_preset_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAvatarPresetID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAvatarPresetID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAvatarPresetID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvatarPresetID: %w", err)
+	}
+	return oldValue.AvatarPresetID, nil
+}
+
+// ClearAvatarPresetID clears the value of the "avatar_preset_id" field.
+func (m *UserMutation) ClearAvatarPresetID() {
+	m.avatar_preset_id = nil
+	m.clearedFields[user.FieldAvatarPresetID] = struct{}{}
+}
+
+// AvatarPresetIDCleared returns if the "avatar_preset_id" field was cleared in this mutation.
+func (m *UserMutation) AvatarPresetIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldAvatarPresetID]
+	return ok
+}
+
+// ResetAvatarPresetID resets all changes to the "avatar_preset_id" field.
+func (m *UserMutation) ResetAvatarPresetID() {
+	m.avatar_preset_id = nil
+	delete(m.clearedFields, user.FieldAvatarPresetID)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *UserMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -3300,7 +3350,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -3309,6 +3359,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.display_name != nil {
 		fields = append(fields, user.FieldDisplayName)
+	}
+	if m.avatar_preset_id != nil {
+		fields = append(fields, user.FieldAvatarPresetID)
 	}
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
@@ -3330,6 +3383,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.PasswordHash()
 	case user.FieldDisplayName:
 		return m.DisplayName()
+	case user.FieldAvatarPresetID:
+		return m.AvatarPresetID()
 	case user.FieldCreatedAt:
 		return m.CreatedAt()
 	case user.FieldUpdatedAt:
@@ -3349,6 +3404,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPasswordHash(ctx)
 	case user.FieldDisplayName:
 		return m.OldDisplayName(ctx)
+	case user.FieldAvatarPresetID:
+		return m.OldAvatarPresetID(ctx)
 	case user.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case user.FieldUpdatedAt:
@@ -3382,6 +3439,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisplayName(v)
+		return nil
+	case user.FieldAvatarPresetID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvatarPresetID(v)
 		return nil
 	case user.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -3426,7 +3490,11 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldAvatarPresetID) {
+		fields = append(fields, user.FieldAvatarPresetID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3439,6 +3507,11 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldAvatarPresetID:
+		m.ClearAvatarPresetID()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -3454,6 +3527,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldDisplayName:
 		m.ResetDisplayName()
+		return nil
+	case user.FieldAvatarPresetID:
+		m.ResetAvatarPresetID()
 		return nil
 	case user.FieldCreatedAt:
 		m.ResetCreatedAt()

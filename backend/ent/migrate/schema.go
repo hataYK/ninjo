@@ -101,6 +101,7 @@ var (
 		{Name: "email", Type: field.TypeString, Unique: true, Size: 255},
 		{Name: "password_hash", Type: field.TypeString, Size: 255},
 		{Name: "display_name", Type: field.TypeString, Size: 100},
+		{Name: "avatar_preset_id", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
