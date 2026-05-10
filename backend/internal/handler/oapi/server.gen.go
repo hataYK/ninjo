@@ -36,6 +36,18 @@ type AvailabilityResponse struct {
 	WeeklyTotal  float32            `json:"weekly_total"`
 }
 
+// AvatarPresetResponse defines model for AvatarPresetResponse.
+type AvatarPresetResponse struct {
+	AvatarPresetId string `json:"avatar_preset_id"`
+}
+
+// AvatarResponse defines model for AvatarResponse.
+type AvatarResponse struct {
+	AvatarPresetId  string               `json:"avatar_preset_id"`
+	SkillCategories []SkillCategoryCount `json:"skill_categories"`
+	SkillCount      int                  `json:"skill_count"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error string `json:"error"`
@@ -59,9 +71,21 @@ type SignupRequest struct {
 	Password    string              `json:"password"`
 }
 
+// SkillCategoryCount defines model for SkillCategoryCount.
+type SkillCategoryCount struct {
+	Category string `json:"category"`
+	Count    int    `json:"count"`
+}
+
 // UpdateAvailabilityRequest defines model for UpdateAvailabilityRequest.
 type UpdateAvailabilityRequest struct {
 	Availability []AvailabilityItem `json:"availability"`
+}
+
+// UpdateAvatarRequest defines model for UpdateAvatarRequest.
+type UpdateAvatarRequest struct {
+	// AvatarPresetId preset_01 〜 preset_12
+	AvatarPresetId string `json:"avatar_preset_id"`
 }
 
 // UserResponse defines model for UserResponse.
@@ -83,6 +107,9 @@ type SignupJSONRequestBody = SignupRequest
 // UpdateAvailabilityJSONRequestBody defines body for UpdateAvailability for application/json ContentType.
 type UpdateAvailabilityJSONRequestBody = UpdateAvailabilityRequest
 
+// UpdateAvatarJSONRequestBody defines body for UpdateAvatar for application/json ContentType.
+type UpdateAvatarJSONRequestBody = UpdateAvatarRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ログイン
@@ -103,6 +130,12 @@ type ServerInterface interface {
 	// 可処分時間設定を一括更新
 	// (PUT /availability)
 	UpdateAvailability(ctx echo.Context) error
+	// アバター設定とスキルサマリーを取得
+	// (GET /avatar)
+	GetAvatar(ctx echo.Context) error
+	// アバターのプリセットを設定/変更
+	// (PUT /avatar)
+	UpdateAvatar(ctx echo.Context) error
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
@@ -171,6 +204,28 @@ func (w *ServerInterfaceWrapper) UpdateAvailability(ctx echo.Context) error {
 	return err
 }
 
+// GetAvatar converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAvatar(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetAvatar(ctx)
+	return err
+}
+
+// UpdateAvatar converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateAvatar(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateAvatar(ctx)
+	return err
+}
+
 // HealthCheck converts echo context to params.
 func (w *ServerInterfaceWrapper) HealthCheck(ctx echo.Context) error {
 	var err error
@@ -233,6 +288,8 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.POST(options.BaseURL+"/auth/signup", wrapper.Signup, options.OperationMiddlewares["signup"]...)
 	router.GET(options.BaseURL+"/availability", wrapper.GetAvailability, options.OperationMiddlewares["getAvailability"]...)
 	router.PUT(options.BaseURL+"/availability", wrapper.UpdateAvailability, options.OperationMiddlewares["updateAvailability"]...)
+	router.GET(options.BaseURL+"/avatar", wrapper.GetAvatar, options.OperationMiddlewares["getAvatar"]...)
+	router.PUT(options.BaseURL+"/avatar", wrapper.UpdateAvatar, options.OperationMiddlewares["updateAvatar"]...)
 	router.GET(options.BaseURL+"/health", wrapper.HealthCheck, options.OperationMiddlewares["healthCheck"]...)
 
 }
@@ -242,28 +299,32 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"3FhbbxNHG/4r0Xzf5cqHcGhriYuUVjQqrRAU9QJF1mBP7CHeA7OzAQtFyu6i4pCgpKEkTWM1hUJwE4JR",
+	"SxtotvBjhl0nV/kL1czajte7a6cqSaB3e5iZ932f55ln3t0bIKfKmqogheogcwPouSKSobgcGoe4BC/j",
+	"EqblYYpk/kwjqoYIxUiMyMNyVh3NXkNoTNwiPUewRrGqgAw4ow5QLKPE1wiN5WF5wPtzwZv+adeppE55",
+	"i4+85ao0kD7lVSviKpFISAMnT7nVFW+5uutMAQnI8DqWDRlkTkpAxop/nZIALWsIZABWKCogAiYkUFQN",
+	"oocTcKenXGfTna1v2395S9bOwt1dp1LcdabYpJVKnHArW8x8DSQwqhIZUpABoyUV0s7Ig8cjQyuGfJlH",
+	"npAAQVcNTFAeZC4F0GglNdKepF6+gnKUp9uJ63mka6qiozC2sGMUv8cUyeLF/wkaBRnwv+Qecckma8kQ",
+	"ZROimmF/7geimr2bZmaQEFjmI3nmpXKWqhSWeKQQML3rD2TctVoMDhSScwTpiPbEgUKS1cSwLM7zZ82l",
+	"dEqwUojKIzgjPvi/CisBfQyXStkcpKigkubEffF0gU887c8rn1YNReTUzUdzefF6L3xb+P3KDi4QkW0U",
+	"Lp8SovaABfHX/Snwh0Wtf1YtYOU8umognUYsL0MclJ7/RApjr0Fdv6aSfeihtUR7RlReXyBdhwUUX7ns",
+	"D+gfrjUwKsoFXFAMLbb8PNa1EixnFSiLQDK8fhYpBVoEmXQqJXZv+z4Cknj0OhYaPHGiD5odUT6U/im2",
+	"UrCISBDC4g8h0VRpOXLb7XdHtBdpTYnK5qKWhxQFPTmGnkO35F4G27MWYW3xVYScLXhwNl+l0gNssjrQ",
+	"vEsPAultGO9FHfXwl+4dEK/x0Bu/krb0DUNYYO+MxZCWhvsIlxsyyhkE0/IFzm1TqKo6htGQwXfLDYA5",
+	"fP4jIAG/CABzOaTrWaqOIWUvI6jhzxHnmKeujKpx/ct2rdL4botZ8431aWausklzaJiZtTcvJhub88xc",
+	"Z5MzzLrJrNtu5RazptnkHWbNu09XGrOvmLnErOmhc8M8KqYlHvZLrFxRB/xn44jofqh0IpVIcRBVDSlQ",
+	"wyADjiVSiWNiZ9OiqDQJDVpMlrh/C95UX1ycPcgzHs6DjG/vwAcZ6fRjNV/2UVIo8vcs1LQSzokZySu6",
+	"quw1nf12UuDomAhSSYmBxANfWCLhwVTqrcUOqFbEDnLF7A1mPWPWQ2b/5lXm3NsrHM3jqfRbyyB4MEem",
+	"cJ/ZDrPXmfWA2VPMfsKsl8x8xcwVZtaZ/S2/tetizBQzZ3YW7u6Y95j5M1eVeZNZ077GDVmG3HgDNXEF",
+	"wYIudjnX+ggf2laEatCekuDvQ+QcDyu+FfEBs1aZXWkBGZlVc0yPxAgaJUgvxmd23h/wVXNjHph4unuL",
+	"SPIqnBirzvWz/NxbeHZkKlpj9j0uHttm1iazH3WmxsyZxs377u09XXnVlZ2lOeE9M91McY7qzNoSwutY",
+	"xJr3S+zBnS4apXjq/EbqgIwm2KXty2nSh+Y0jaWtnZlfO9WROkx1zAmB3BJkbjL7seCzxuxfmO346Xx0",
+	"5JY34y0+YOa6jxQz7zFrJt7jVkUpfzDb8Raeba/O+rNipNnVABZQhDTPIDoU/BI+MGOJ/JMQgZM7u+C+",
+	"WjwiR/Gqa9trd7ZrTqCFAplLwebp0sjESCcz7mzdvbXqVr7xf91s1zbcpz/w1kbU0slPoCvm3zJGBCvh",
+	"Nv+AzCP+e+KQW5b9iiN83LxjhvL+avXNi0lv+kn4sAsqtuksFJI+nsJHHKxgOn+J/Ud8RBwNc8x6zWyn",
+	"SYxZ48eEtSEOjt+Z/aOQoBNjLhz1/rbS4uYADaXjo/7wrST8p/Zds5JWY7rG7EVOqLXFW1i7MvzJ+yhV",
+	"Zj7tqoNZ875+k+7DKW/5eZRKuZUUESz5fyMireQz8fp0EeXGjvqbh+89R5wATqPmuPadNy82Qv3Z92KX",
+	"vmS2yazH4qOk3lG5XtYpknnlAmgyjogucDZICWRAEmo4OZ4GEyMTfwcAAP//",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

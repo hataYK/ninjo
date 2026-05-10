@@ -55,15 +55,27 @@ func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.Use
 	return toUserModel(found), nil
 }
 
+func (r *userRepository) UpdateAvatarPresetID(ctx context.Context, id uuid.UUID, presetID string) (*model.User, error) {
+	updated, err := r.client.User.
+		UpdateOneID(id).
+		SetAvatarPresetID(presetID).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return toUserModel(updated), nil
+}
+
 // toUserModel は ent のエンティティを domain のモデルに変換する。
 // ent の型が infra 層の外に漏れないようにする。
 func toUserModel(e *ent.User) *model.User {
 	return &model.User{
-		ID:           e.ID,
-		Email:        e.Email,
-		PasswordHash: e.PasswordHash,
-		DisplayName:  e.DisplayName,
-		CreatedAt:    e.CreatedAt,
-		UpdatedAt:    e.UpdatedAt,
+		ID:             e.ID,
+		Email:          e.Email,
+		PasswordHash:   e.PasswordHash,
+		DisplayName:    e.DisplayName,
+		AvatarPresetID: e.AvatarPresetID,
+		CreatedAt:      e.CreatedAt,
+		UpdatedAt:      e.UpdatedAt,
 	}
 }

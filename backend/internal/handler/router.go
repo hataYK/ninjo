@@ -17,6 +17,8 @@ func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
 	oapi.RegisterHandlersWithOptions(e, h, oapi.RegisterHandlersOptions{
 		OperationMiddlewares: map[string][]echo.MiddlewareFunc{
 			// 認証が必要なエンドポイント
+			"getAvatar":          {authMw},
+			"updateAvatar":       {authMw},
 			"getAvailability":    {authMw},
 			"updateAvailability": {authMw},
 		},

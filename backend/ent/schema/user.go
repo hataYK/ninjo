@@ -28,6 +28,10 @@ func (User) Fields() []ent.Field {
 		field.String("display_name").
 			MaxLen(100).
 			NotEmpty(),
+		field.String("avatar_preset_id").
+			MaxLen(20).
+			Optional().
+			Nillable(),
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable(),

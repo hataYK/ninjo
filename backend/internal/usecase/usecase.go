@@ -26,6 +26,10 @@ func (u *Usecase) Auth() *AuthUsecase {
 	return NewAuthUsecase(u.config.DS.User(), u.config.JWTSecret)
 }
 
+func (u *Usecase) Avatar() *AvatarUsecase {
+	return NewAvatarUsecase(u.config.DS.User())
+}
+
 func (u *Usecase) Availability() *AvailabilityUsecase {
 	return NewAvailabilityUsecase(u.config.DS.Availability())
 }

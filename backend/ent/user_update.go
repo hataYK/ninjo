@@ -73,6 +73,26 @@ func (_u *UserUpdate) SetNillableDisplayName(v *string) *UserUpdate {
 	return _u
 }
 
+// SetAvatarPresetID sets the "avatar_preset_id" field.
+func (_u *UserUpdate) SetAvatarPresetID(v string) *UserUpdate {
+	_u.mutation.SetAvatarPresetID(v)
+	return _u
+}
+
+// SetNillableAvatarPresetID sets the "avatar_preset_id" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableAvatarPresetID(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetAvatarPresetID(*v)
+	}
+	return _u
+}
+
+// ClearAvatarPresetID clears the value of the "avatar_preset_id" field.
+func (_u *UserUpdate) ClearAvatarPresetID() *UserUpdate {
+	_u.mutation.ClearAvatarPresetID()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *UserUpdate) SetUpdatedAt(v time.Time) *UserUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -209,6 +229,11 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "User.display_name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AvatarPresetID(); ok {
+		if err := user.AvatarPresetIDValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_preset_id", err: fmt.Errorf(`ent: validator failed for field "User.avatar_preset_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -232,6 +257,12 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(user.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.AvatarPresetID(); ok {
+		_spec.SetField(user.FieldAvatarPresetID, field.TypeString, value)
+	}
+	if _u.mutation.AvatarPresetIDCleared() {
+		_spec.ClearField(user.FieldAvatarPresetID, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
@@ -388,6 +419,26 @@ func (_u *UserUpdateOne) SetNillableDisplayName(v *string) *UserUpdateOne {
 	return _u
 }
 
+// SetAvatarPresetID sets the "avatar_preset_id" field.
+func (_u *UserUpdateOne) SetAvatarPresetID(v string) *UserUpdateOne {
+	_u.mutation.SetAvatarPresetID(v)
+	return _u
+}
+
+// SetNillableAvatarPresetID sets the "avatar_preset_id" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableAvatarPresetID(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetAvatarPresetID(*v)
+	}
+	return _u
+}
+
+// ClearAvatarPresetID clears the value of the "avatar_preset_id" field.
+func (_u *UserUpdateOne) ClearAvatarPresetID() *UserUpdateOne {
+	_u.mutation.ClearAvatarPresetID()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *UserUpdateOne) SetUpdatedAt(v time.Time) *UserUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -537,6 +588,11 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "User.display_name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.AvatarPresetID(); ok {
+		if err := user.AvatarPresetIDValidator(v); err != nil {
+			return &ValidationError{Name: "avatar_preset_id", err: fmt.Errorf(`ent: validator failed for field "User.avatar_preset_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -577,6 +633,12 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(user.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.AvatarPresetID(); ok {
+		_spec.SetField(user.FieldAvatarPresetID, field.TypeString, value)
+	}
+	if _u.mutation.AvatarPresetIDCleared() {
+		_spec.ClearField(user.FieldAvatarPresetID, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
