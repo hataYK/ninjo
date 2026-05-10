@@ -20,71 +20,75 @@ func NewAvailabilityRepository(client *ent.Client) repository.AvailabilityReposi
 	return &availabilityRepository{client: client}
 }
 
-func (r *availabilityRepository) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Availability, error) {
-	rows, err := r.client.Availability.
+func (r *availabilityRepository) FindByUserID(ctx context.Context, userID uuid.UUID) (*model.Availability, error) {
+	row, err := r.client.Availability.
 		Query().
 		Where(availability.HasUserWith(entUser.IDEQ(userID))).
-		Order(ent.Asc(availability.FieldDayOfWeek)).
-		All(ctx)
+		Only(ctx)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
-
-	result := make([]*model.Availability, len(rows))
-	for i, row := range rows {
-		result[i] = toAvailabilityModel(row, userID)
-	}
-	return result, nil
+	return toAvailabilityModel(row, userID), nil
 }
 
-func (r *availabilityRepository) UpsertBatch(ctx context.Context, userID uuid.UUID, items []*model.Availability) ([]*model.Availability, error) {
-	tx, err := r.client.Tx(ctx)
+func (r *availabilityRepository) Upsert(ctx context.Context, avail *model.Availability) (*model.Availability, error) {
+	// 既存レコードを検索
+	existing, err := r.client.Availability.
+		Query().
+		Where(availability.HasUserWith(entUser.IDEQ(avail.UserID))).
+		Only(ctx)
+	if err != nil && !ent.IsNotFound(err) {
+		return nil, err
+	}
+
+	if existing != nil {
+		// 更新
+		updated, err := existing.Update().
+			SetSunHours(avail.SunHours).
+			SetMonHours(avail.MonHours).
+			SetTueHours(avail.TueHours).
+			SetWedHours(avail.WedHours).
+			SetThuHours(avail.ThuHours).
+			SetFriHours(avail.FriHours).
+			SetSatHours(avail.SatHours).
+			Save(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return toAvailabilityModel(updated, avail.UserID), nil
+	}
+
+	// 新規作成
+	created, err := r.client.Availability.
+		Create().
+		SetSunHours(avail.SunHours).
+		SetMonHours(avail.MonHours).
+		SetTueHours(avail.TueHours).
+		SetWedHours(avail.WedHours).
+		SetThuHours(avail.ThuHours).
+		SetFriHours(avail.FriHours).
+		SetSatHours(avail.SatHours).
+		SetUserID(avail.UserID).
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	// 既存レコードを全削除
-	_, err = tx.Availability.
-		Delete().
-		Where(availability.HasUserWith(entUser.IDEQ(userID))).
-		Exec(ctx)
-	if err != nil {
-		_ = tx.Rollback()
-		return nil, err
-	}
-
-	// 新規レコードを一括作成
-	builders := make([]*ent.AvailabilityCreate, len(items))
-	for i, item := range items {
-		builders[i] = tx.Availability.
-			Create().
-			SetDayOfWeek(item.DayOfWeek).
-			SetHours(item.Hours).
-			SetUserID(userID)
-	}
-
-	created, err := tx.Availability.CreateBulk(builders...).Save(ctx)
-	if err != nil {
-		_ = tx.Rollback()
-		return nil, err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, err
-	}
-
-	result := make([]*model.Availability, len(created))
-	for i, row := range created {
-		result[i] = toAvailabilityModel(row, userID)
-	}
-	return result, nil
+	return toAvailabilityModel(created, avail.UserID), nil
 }
 
 func toAvailabilityModel(e *ent.Availability, userID uuid.UUID) *model.Availability {
 	return &model.Availability{
-		ID:        e.ID,
-		UserID:    userID,
-		DayOfWeek: e.DayOfWeek,
-		Hours:     e.Hours,
+		ID:       e.ID,
+		UserID:   userID,
+		SunHours: e.SunHours,
+		MonHours: e.MonHours,
+		TueHours: e.TueHours,
+		WedHours: e.WedHours,
+		ThuHours: e.ThuHours,
+		FriHours: e.FriHours,
+		SatHours: e.SatHours,
 	}
 }

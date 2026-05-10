@@ -11,8 +11,13 @@ var (
 	// AvailabilitiesColumns holds the columns for the "availabilities" table.
 	AvailabilitiesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "day_of_week", Type: field.TypeInt8},
-		{Name: "hours", Type: field.TypeFloat64},
+		{Name: "sun_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "mon_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "tue_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "wed_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "thu_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "fri_hours", Type: field.TypeFloat64, Default: 0},
+		{Name: "sat_hours", Type: field.TypeFloat64, Default: 0},
 		{Name: "user_availabilities", Type: field.TypeUUID},
 	}
 	// AvailabilitiesTable holds the schema information for the "availabilities" table.
@@ -23,16 +28,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "availabilities_users_availabilities",
-				Columns:    []*schema.Column{AvailabilitiesColumns[3]},
+				Columns:    []*schema.Column{AvailabilitiesColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "availability_day_of_week_user_availabilities",
-				Unique:  true,
-				Columns: []*schema.Column{AvailabilitiesColumns[1], AvailabilitiesColumns[3]},
 			},
 		},
 	}

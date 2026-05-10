@@ -35,9 +35,9 @@ func (h *Handler) UpdateAvailability(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, oapi.ErrorResponse{Error: err.Error()})
 	}
 
-	items := make([]usecase.AvailabilityItem, len(req.Availability))
+	items := make([]usecase.AvailabilityInput, len(req.Availability))
 	for i, a := range req.Availability {
-		items[i] = usecase.AvailabilityItem{
+		items[i] = usecase.AvailabilityInput{
 			DayOfWeek: int8(a.DayOfWeek),
 			Hours:     float64(a.Hours),
 		}

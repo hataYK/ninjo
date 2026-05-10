@@ -13,10 +13,20 @@ const (
 	Label = "availability"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldDayOfWeek holds the string denoting the day_of_week field in the database.
-	FieldDayOfWeek = "day_of_week"
-	// FieldHours holds the string denoting the hours field in the database.
-	FieldHours = "hours"
+	// FieldSunHours holds the string denoting the sun_hours field in the database.
+	FieldSunHours = "sun_hours"
+	// FieldMonHours holds the string denoting the mon_hours field in the database.
+	FieldMonHours = "mon_hours"
+	// FieldTueHours holds the string denoting the tue_hours field in the database.
+	FieldTueHours = "tue_hours"
+	// FieldWedHours holds the string denoting the wed_hours field in the database.
+	FieldWedHours = "wed_hours"
+	// FieldThuHours holds the string denoting the thu_hours field in the database.
+	FieldThuHours = "thu_hours"
+	// FieldFriHours holds the string denoting the fri_hours field in the database.
+	FieldFriHours = "fri_hours"
+	// FieldSatHours holds the string denoting the sat_hours field in the database.
+	FieldSatHours = "sat_hours"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the availability in the database.
@@ -33,8 +43,13 @@ const (
 // Columns holds all SQL columns for availability fields.
 var Columns = []string{
 	FieldID,
-	FieldDayOfWeek,
-	FieldHours,
+	FieldSunHours,
+	FieldMonHours,
+	FieldTueHours,
+	FieldWedHours,
+	FieldThuHours,
+	FieldFriHours,
+	FieldSatHours,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "availabilities"
@@ -59,10 +74,34 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DayOfWeekValidator is a validator for the "day_of_week" field. It is called by the builders before save.
-	DayOfWeekValidator func(int8) error
-	// HoursValidator is a validator for the "hours" field. It is called by the builders before save.
-	HoursValidator func(float64) error
+	// DefaultSunHours holds the default value on creation for the "sun_hours" field.
+	DefaultSunHours float64
+	// SunHoursValidator is a validator for the "sun_hours" field. It is called by the builders before save.
+	SunHoursValidator func(float64) error
+	// DefaultMonHours holds the default value on creation for the "mon_hours" field.
+	DefaultMonHours float64
+	// MonHoursValidator is a validator for the "mon_hours" field. It is called by the builders before save.
+	MonHoursValidator func(float64) error
+	// DefaultTueHours holds the default value on creation for the "tue_hours" field.
+	DefaultTueHours float64
+	// TueHoursValidator is a validator for the "tue_hours" field. It is called by the builders before save.
+	TueHoursValidator func(float64) error
+	// DefaultWedHours holds the default value on creation for the "wed_hours" field.
+	DefaultWedHours float64
+	// WedHoursValidator is a validator for the "wed_hours" field. It is called by the builders before save.
+	WedHoursValidator func(float64) error
+	// DefaultThuHours holds the default value on creation for the "thu_hours" field.
+	DefaultThuHours float64
+	// ThuHoursValidator is a validator for the "thu_hours" field. It is called by the builders before save.
+	ThuHoursValidator func(float64) error
+	// DefaultFriHours holds the default value on creation for the "fri_hours" field.
+	DefaultFriHours float64
+	// FriHoursValidator is a validator for the "fri_hours" field. It is called by the builders before save.
+	FriHoursValidator func(float64) error
+	// DefaultSatHours holds the default value on creation for the "sat_hours" field.
+	DefaultSatHours float64
+	// SatHoursValidator is a validator for the "sat_hours" field. It is called by the builders before save.
+	SatHoursValidator func(float64) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -75,14 +114,39 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByDayOfWeek orders the results by the day_of_week field.
-func ByDayOfWeek(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDayOfWeek, opts...).ToFunc()
+// BySunHours orders the results by the sun_hours field.
+func BySunHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSunHours, opts...).ToFunc()
 }
 
-// ByHours orders the results by the hours field.
-func ByHours(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHours, opts...).ToFunc()
+// ByMonHours orders the results by the mon_hours field.
+func ByMonHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMonHours, opts...).ToFunc()
+}
+
+// ByTueHours orders the results by the tue_hours field.
+func ByTueHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTueHours, opts...).ToFunc()
+}
+
+// ByWedHours orders the results by the wed_hours field.
+func ByWedHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWedHours, opts...).ToFunc()
+}
+
+// ByThuHours orders the results by the thu_hours field.
+func ByThuHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldThuHours, opts...).ToFunc()
+}
+
+// ByFriHours orders the results by the fri_hours field.
+func ByFriHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFriHours, opts...).ToFunc()
+}
+
+// BySatHours orders the results by the sat_hours field.
+func BySatHours(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSatHours, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

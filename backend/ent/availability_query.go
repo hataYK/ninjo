@@ -300,12 +300,12 @@ func (_q *AvailabilityQuery) WithUser(opts ...func(*UserQuery)) *AvailabilityQue
 // Example:
 //
 //	var v []struct {
-//		DayOfWeek int8 `json:"day_of_week,omitempty"`
+//		SunHours float64 `json:"sun_hours,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Availability.Query().
-//		GroupBy(availability.FieldDayOfWeek).
+//		GroupBy(availability.FieldSunHours).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *AvailabilityQuery) GroupBy(field string, fields ...string) *AvailabilityGroupBy {
@@ -323,11 +323,11 @@ func (_q *AvailabilityQuery) GroupBy(field string, fields ...string) *Availabili
 // Example:
 //
 //	var v []struct {
-//		DayOfWeek int8 `json:"day_of_week,omitempty"`
+//		SunHours float64 `json:"sun_hours,omitempty"`
 //	}
 //
 //	client.Availability.Query().
-//		Select(availability.FieldDayOfWeek).
+//		Select(availability.FieldSunHours).
 //		Scan(ctx, &v)
 func (_q *AvailabilityQuery) Select(fields ...string) *AvailabilitySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

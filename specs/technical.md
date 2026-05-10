@@ -213,14 +213,19 @@ frontend/
 
 ### availability（可処分時間）
 
+1ユーザーにつき1行。週の曜日ごとの可処分時間をまとめて管理する。
+
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
 | id | UUID | PK | |
-| user_id | UUID | FK → users, NOT NULL | |
-| day_of_week | SMALLINT | NOT NULL | 0=日〜6=土（Go time.Weekday準拠） |
-| hours | DECIMAL(3,1) | NOT NULL | 勉強可能時間（h） |
-
-UNIQUE(user_id, day_of_week)
+| user_id | UUID | FK → users, UNIQUE, NOT NULL | |
+| sun_hours | FLOAT | NOT NULL, DEFAULT 0 | 日曜の可処分時間（0-24h） |
+| mon_hours | FLOAT | NOT NULL, DEFAULT 0 | 月曜の可処分時間 |
+| tue_hours | FLOAT | NOT NULL, DEFAULT 0 | 火曜の可処分時間 |
+| wed_hours | FLOAT | NOT NULL, DEFAULT 0 | 水曜の可処分時間 |
+| thu_hours | FLOAT | NOT NULL, DEFAULT 0 | 木曜の可処分時間 |
+| fri_hours | FLOAT | NOT NULL, DEFAULT 0 | 金曜の可処分時間 |
+| sat_hours | FLOAT | NOT NULL, DEFAULT 0 | 土曜の可処分時間 |
 
 ### plans（学習計画）
 

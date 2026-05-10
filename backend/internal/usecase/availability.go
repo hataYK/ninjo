@@ -22,68 +22,84 @@ func NewAvailabilityUsecase(repo repository.AvailabilityRepository) *Availabilit
 	return &AvailabilityUsecase{repo: repo}
 }
 
-// AvailabilityItem はGET/PUTで使うDTO。
-type AvailabilityItem struct {
+// AvailabilityInput はPUT用の入力。
+type AvailabilityInput struct {
 	DayOfWeek int8
 	Hours     float64
 }
 
 // AvailabilityResult はレスポンス用のDTO。
 type AvailabilityResult struct {
-	Items       []AvailabilityItem
+	Items       []AvailabilityInput
 	WeeklyTotal float64
 }
 
 // Get はユーザーの可処分時間を取得する。
-// DBにレコードがない曜日はデフォルト0hとして補完する。
+// レコードがなければデフォルト全0hを返す。
 func (uc *AvailabilityUsecase) Get(ctx context.Context, userID uuid.UUID) (*AvailabilityResult, error) {
-	rows, err := uc.repo.FindByUserID(ctx, userID)
+	avail, err := uc.repo.FindByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	// 曜日→hoursのマップを作成
-	hoursMap := make(map[int8]float64)
-	for _, row := range rows {
-		hoursMap[row.DayOfWeek] = row.Hours
+	if avail == nil {
+		// デフォルト: 全曜日0h
+		avail = &model.Availability{UserID: userID}
 	}
 
-	// 全7曜日を補完
-	items := make([]AvailabilityItem, 7)
-	var total float64
-	for i := int8(0); i <= 6; i++ {
-		h := hoursMap[i]
-		items[i] = AvailabilityItem{DayOfWeek: i, Hours: h}
-		total += h
-	}
-
-	return &AvailabilityResult{Items: items, WeeklyTotal: total}, nil
+	return toAvailabilityResult(avail), nil
 }
 
 // Update はユーザーの可処分時間を一括更新する。
-func (uc *AvailabilityUsecase) Update(ctx context.Context, userID uuid.UUID, items []AvailabilityItem) (*AvailabilityResult, error) {
+func (uc *AvailabilityUsecase) Update(ctx context.Context, userID uuid.UUID, items []AvailabilityInput) (*AvailabilityResult, error) {
 	if err := validateAvailabilityItems(items); err != nil {
 		return nil, err
 	}
 
-	models := make([]*model.Availability, len(items))
-	for i, item := range items {
-		models[i] = &model.Availability{
-			UserID:    userID,
-			DayOfWeek: item.DayOfWeek,
-			Hours:     item.Hours,
+	// 入力をモデルに変換
+	avail := &model.Availability{UserID: userID}
+	for _, item := range items {
+		switch item.DayOfWeek {
+		case 0:
+			avail.SunHours = item.Hours
+		case 1:
+			avail.MonHours = item.Hours
+		case 2:
+			avail.TueHours = item.Hours
+		case 3:
+			avail.WedHours = item.Hours
+		case 4:
+			avail.ThuHours = item.Hours
+		case 5:
+			avail.FriHours = item.Hours
+		case 6:
+			avail.SatHours = item.Hours
 		}
 	}
 
-	_, err := uc.repo.UpsertBatch(ctx, userID, models)
+	saved, err := uc.repo.Upsert(ctx, avail)
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.Get(ctx, userID)
+	return toAvailabilityResult(saved), nil
 }
 
-func validateAvailabilityItems(items []AvailabilityItem) error {
+func toAvailabilityResult(avail *model.Availability) *AvailabilityResult {
+	items := make([]AvailabilityInput, 7)
+	for i := int8(0); i <= 6; i++ {
+		items[i] = AvailabilityInput{
+			DayOfWeek: i,
+			Hours:     avail.Hours(int(i)),
+		}
+	}
+	return &AvailabilityResult{
+		Items:       items,
+		WeeklyTotal: avail.WeeklyTotal(),
+	}
+}
+
+func validateAvailabilityItems(items []AvailabilityInput) error {
 	if len(items) != 7 {
 		return ErrInvalidAvailability
 	}

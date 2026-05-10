@@ -21,15 +21,101 @@ type AvailabilityCreate struct {
 	hooks    []Hook
 }
 
-// SetDayOfWeek sets the "day_of_week" field.
-func (_c *AvailabilityCreate) SetDayOfWeek(v int8) *AvailabilityCreate {
-	_c.mutation.SetDayOfWeek(v)
+// SetSunHours sets the "sun_hours" field.
+func (_c *AvailabilityCreate) SetSunHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetSunHours(v)
 	return _c
 }
 
-// SetHours sets the "hours" field.
-func (_c *AvailabilityCreate) SetHours(v float64) *AvailabilityCreate {
-	_c.mutation.SetHours(v)
+// SetNillableSunHours sets the "sun_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableSunHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetSunHours(*v)
+	}
+	return _c
+}
+
+// SetMonHours sets the "mon_hours" field.
+func (_c *AvailabilityCreate) SetMonHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetMonHours(v)
+	return _c
+}
+
+// SetNillableMonHours sets the "mon_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableMonHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetMonHours(*v)
+	}
+	return _c
+}
+
+// SetTueHours sets the "tue_hours" field.
+func (_c *AvailabilityCreate) SetTueHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetTueHours(v)
+	return _c
+}
+
+// SetNillableTueHours sets the "tue_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableTueHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetTueHours(*v)
+	}
+	return _c
+}
+
+// SetWedHours sets the "wed_hours" field.
+func (_c *AvailabilityCreate) SetWedHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetWedHours(v)
+	return _c
+}
+
+// SetNillableWedHours sets the "wed_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableWedHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetWedHours(*v)
+	}
+	return _c
+}
+
+// SetThuHours sets the "thu_hours" field.
+func (_c *AvailabilityCreate) SetThuHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetThuHours(v)
+	return _c
+}
+
+// SetNillableThuHours sets the "thu_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableThuHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetThuHours(*v)
+	}
+	return _c
+}
+
+// SetFriHours sets the "fri_hours" field.
+func (_c *AvailabilityCreate) SetFriHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetFriHours(v)
+	return _c
+}
+
+// SetNillableFriHours sets the "fri_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableFriHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetFriHours(*v)
+	}
+	return _c
+}
+
+// SetSatHours sets the "sat_hours" field.
+func (_c *AvailabilityCreate) SetSatHours(v float64) *AvailabilityCreate {
+	_c.mutation.SetSatHours(v)
+	return _c
+}
+
+// SetNillableSatHours sets the "sat_hours" field if the given value is not nil.
+func (_c *AvailabilityCreate) SetNillableSatHours(v *float64) *AvailabilityCreate {
+	if v != nil {
+		_c.SetSatHours(*v)
+	}
 	return _c
 }
 
@@ -93,6 +179,34 @@ func (_c *AvailabilityCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AvailabilityCreate) defaults() {
+	if _, ok := _c.mutation.SunHours(); !ok {
+		v := availability.DefaultSunHours
+		_c.mutation.SetSunHours(v)
+	}
+	if _, ok := _c.mutation.MonHours(); !ok {
+		v := availability.DefaultMonHours
+		_c.mutation.SetMonHours(v)
+	}
+	if _, ok := _c.mutation.TueHours(); !ok {
+		v := availability.DefaultTueHours
+		_c.mutation.SetTueHours(v)
+	}
+	if _, ok := _c.mutation.WedHours(); !ok {
+		v := availability.DefaultWedHours
+		_c.mutation.SetWedHours(v)
+	}
+	if _, ok := _c.mutation.ThuHours(); !ok {
+		v := availability.DefaultThuHours
+		_c.mutation.SetThuHours(v)
+	}
+	if _, ok := _c.mutation.FriHours(); !ok {
+		v := availability.DefaultFriHours
+		_c.mutation.SetFriHours(v)
+	}
+	if _, ok := _c.mutation.SatHours(); !ok {
+		v := availability.DefaultSatHours
+		_c.mutation.SetSatHours(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := availability.DefaultID()
 		_c.mutation.SetID(v)
@@ -101,20 +215,60 @@ func (_c *AvailabilityCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *AvailabilityCreate) check() error {
-	if _, ok := _c.mutation.DayOfWeek(); !ok {
-		return &ValidationError{Name: "day_of_week", err: errors.New(`ent: missing required field "Availability.day_of_week"`)}
+	if _, ok := _c.mutation.SunHours(); !ok {
+		return &ValidationError{Name: "sun_hours", err: errors.New(`ent: missing required field "Availability.sun_hours"`)}
 	}
-	if v, ok := _c.mutation.DayOfWeek(); ok {
-		if err := availability.DayOfWeekValidator(v); err != nil {
-			return &ValidationError{Name: "day_of_week", err: fmt.Errorf(`ent: validator failed for field "Availability.day_of_week": %w`, err)}
+	if v, ok := _c.mutation.SunHours(); ok {
+		if err := availability.SunHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sun_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sun_hours": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Hours(); !ok {
-		return &ValidationError{Name: "hours", err: errors.New(`ent: missing required field "Availability.hours"`)}
+	if _, ok := _c.mutation.MonHours(); !ok {
+		return &ValidationError{Name: "mon_hours", err: errors.New(`ent: missing required field "Availability.mon_hours"`)}
 	}
-	if v, ok := _c.mutation.Hours(); ok {
-		if err := availability.HoursValidator(v); err != nil {
-			return &ValidationError{Name: "hours", err: fmt.Errorf(`ent: validator failed for field "Availability.hours": %w`, err)}
+	if v, ok := _c.mutation.MonHours(); ok {
+		if err := availability.MonHoursValidator(v); err != nil {
+			return &ValidationError{Name: "mon_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.mon_hours": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.TueHours(); !ok {
+		return &ValidationError{Name: "tue_hours", err: errors.New(`ent: missing required field "Availability.tue_hours"`)}
+	}
+	if v, ok := _c.mutation.TueHours(); ok {
+		if err := availability.TueHoursValidator(v); err != nil {
+			return &ValidationError{Name: "tue_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.tue_hours": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.WedHours(); !ok {
+		return &ValidationError{Name: "wed_hours", err: errors.New(`ent: missing required field "Availability.wed_hours"`)}
+	}
+	if v, ok := _c.mutation.WedHours(); ok {
+		if err := availability.WedHoursValidator(v); err != nil {
+			return &ValidationError{Name: "wed_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.wed_hours": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ThuHours(); !ok {
+		return &ValidationError{Name: "thu_hours", err: errors.New(`ent: missing required field "Availability.thu_hours"`)}
+	}
+	if v, ok := _c.mutation.ThuHours(); ok {
+		if err := availability.ThuHoursValidator(v); err != nil {
+			return &ValidationError{Name: "thu_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.thu_hours": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.FriHours(); !ok {
+		return &ValidationError{Name: "fri_hours", err: errors.New(`ent: missing required field "Availability.fri_hours"`)}
+	}
+	if v, ok := _c.mutation.FriHours(); ok {
+		if err := availability.FriHoursValidator(v); err != nil {
+			return &ValidationError{Name: "fri_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.fri_hours": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SatHours(); !ok {
+		return &ValidationError{Name: "sat_hours", err: errors.New(`ent: missing required field "Availability.sat_hours"`)}
+	}
+	if v, ok := _c.mutation.SatHours(); ok {
+		if err := availability.SatHoursValidator(v); err != nil {
+			return &ValidationError{Name: "sat_hours", err: fmt.Errorf(`ent: validator failed for field "Availability.sat_hours": %w`, err)}
 		}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
@@ -155,13 +309,33 @@ func (_c *AvailabilityCreate) createSpec() (*Availability, *sqlgraph.CreateSpec)
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := _c.mutation.DayOfWeek(); ok {
-		_spec.SetField(availability.FieldDayOfWeek, field.TypeInt8, value)
-		_node.DayOfWeek = value
+	if value, ok := _c.mutation.SunHours(); ok {
+		_spec.SetField(availability.FieldSunHours, field.TypeFloat64, value)
+		_node.SunHours = value
 	}
-	if value, ok := _c.mutation.Hours(); ok {
-		_spec.SetField(availability.FieldHours, field.TypeFloat64, value)
-		_node.Hours = value
+	if value, ok := _c.mutation.MonHours(); ok {
+		_spec.SetField(availability.FieldMonHours, field.TypeFloat64, value)
+		_node.MonHours = value
+	}
+	if value, ok := _c.mutation.TueHours(); ok {
+		_spec.SetField(availability.FieldTueHours, field.TypeFloat64, value)
+		_node.TueHours = value
+	}
+	if value, ok := _c.mutation.WedHours(); ok {
+		_spec.SetField(availability.FieldWedHours, field.TypeFloat64, value)
+		_node.WedHours = value
+	}
+	if value, ok := _c.mutation.ThuHours(); ok {
+		_spec.SetField(availability.FieldThuHours, field.TypeFloat64, value)
+		_node.ThuHours = value
+	}
+	if value, ok := _c.mutation.FriHours(); ok {
+		_spec.SetField(availability.FieldFriHours, field.TypeFloat64, value)
+		_node.FriHours = value
+	}
+	if value, ok := _c.mutation.SatHours(); ok {
+		_spec.SetField(availability.FieldSatHours, field.TypeFloat64, value)
+		_node.SatHours = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
