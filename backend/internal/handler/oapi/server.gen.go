@@ -8,18 +8,63 @@ import (
 	"compress/flate"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
 	CookieAuthScopes cookieAuthContextKey = "cookieAuth.Scopes"
 )
+
+// Defines values for PlanDetailResponseStatus.
+const (
+	PlanDetailResponseStatusActive    PlanDetailResponseStatus = "active"
+	PlanDetailResponseStatusCompleted PlanDetailResponseStatus = "completed"
+	PlanDetailResponseStatusPaused    PlanDetailResponseStatus = "paused"
+)
+
+// Valid indicates whether the value is a known member of the PlanDetailResponseStatus enum.
+func (e PlanDetailResponseStatus) Valid() bool {
+	switch e {
+	case PlanDetailResponseStatusActive:
+		return true
+	case PlanDetailResponseStatusCompleted:
+		return true
+	case PlanDetailResponseStatusPaused:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PlanResponseStatus.
+const (
+	PlanResponseStatusActive    PlanResponseStatus = "active"
+	PlanResponseStatusCompleted PlanResponseStatus = "completed"
+	PlanResponseStatusPaused    PlanResponseStatus = "paused"
+)
+
+// Valid indicates whether the value is a known member of the PlanResponseStatus enum.
+func (e PlanResponseStatus) Valid() bool {
+	switch e {
+	case PlanResponseStatusActive:
+		return true
+	case PlanResponseStatusCompleted:
+		return true
+	case PlanResponseStatusPaused:
+		return true
+	default:
+		return false
+	}
+}
 
 // AvailabilityItem defines model for AvailabilityItem.
 type AvailabilityItem struct {
@@ -48,6 +93,14 @@ type AvatarResponse struct {
 	SkillCount      int                  `json:"skill_count"`
 }
 
+// CreatePlanRequest defines model for CreatePlanRequest.
+type CreatePlanRequest struct {
+	// TargetDate 目標期限（YYYY-MM-DD）。今日より後の日付
+	TargetDate openapi_types.Date `json:"target_date"`
+	Title      string             `json:"title"`
+	TotalPages int                `json:"total_pages"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error string `json:"error"`
@@ -62,6 +115,53 @@ type LoginRequest struct {
 // MessageResponse defines model for MessageResponse.
 type MessageResponse struct {
 	Message string `json:"message"`
+}
+
+// PlanDetailResponse defines model for PlanDetailResponse.
+type PlanDetailResponse struct {
+	AiReview         *string                  `json:"ai_review,omitempty"`
+	CreatedAt        time.Time                `json:"created_at"`
+	DailyPagesNeeded float32                  `json:"daily_pages_needed"`
+	DaysRemaining    int                      `json:"days_remaining"`
+	Id               openapi_types.UUID       `json:"id"`
+	ProgressRate     float32                  `json:"progress_rate"`
+	StartDate        openapi_types.Date       `json:"start_date"`
+	Status           PlanDetailResponseStatus `json:"status"`
+	TargetDate       openapi_types.Date       `json:"target_date"`
+	Title            string                   `json:"title"`
+	TotalPages       int                      `json:"total_pages"`
+}
+
+// PlanDetailResponseStatus defines model for PlanDetailResponse.Status.
+type PlanDetailResponseStatus string
+
+// PlanListResponse defines model for PlanListResponse.
+type PlanListResponse struct {
+	Plans []PlanResponse `json:"plans"`
+}
+
+// PlanResponse defines model for PlanResponse.
+type PlanResponse struct {
+	AiReview     *string            `json:"ai_review,omitempty"`
+	CreatedAt    time.Time          `json:"created_at"`
+	Id           openapi_types.UUID `json:"id"`
+	ProgressRate float32            `json:"progress_rate"`
+	StartDate    openapi_types.Date `json:"start_date"`
+	Status       PlanResponseStatus `json:"status"`
+	TargetDate   openapi_types.Date `json:"target_date"`
+	Title        string             `json:"title"`
+	TotalPages   int                `json:"total_pages"`
+}
+
+// PlanResponseStatus defines model for PlanResponse.Status.
+type PlanResponseStatus string
+
+// PlanReviewResponse defines model for PlanReviewResponse.
+type PlanReviewResponse struct {
+	AvailableDays int     `json:"available_days"`
+	DailyPages    float32 `json:"daily_pages"`
+	ReviewMessage string  `json:"review_message"`
+	TotalDays     int     `json:"total_days"`
 }
 
 // SignupRequest defines model for SignupRequest.
@@ -110,6 +210,12 @@ type UpdateAvailabilityJSONRequestBody = UpdateAvailabilityRequest
 // UpdateAvatarJSONRequestBody defines body for UpdateAvatar for application/json ContentType.
 type UpdateAvatarJSONRequestBody = UpdateAvatarRequest
 
+// CreatePlanJSONRequestBody defines body for CreatePlan for application/json ContentType.
+type CreatePlanJSONRequestBody = CreatePlanRequest
+
+// ReviewPlanJSONRequestBody defines body for ReviewPlan for application/json ContentType.
+type ReviewPlanJSONRequestBody = CreatePlanRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ログイン
@@ -139,6 +245,21 @@ type ServerInterface interface {
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
+	// 計画一覧を取得
+	// (GET /plans)
+	ListPlans(ctx echo.Context) error
+	// 計画を作成
+	// (POST /plans)
+	CreatePlan(ctx echo.Context) error
+	// 計画をAIにレビューしてもらう（保存しない）
+	// (POST /plans/review)
+	ReviewPlan(ctx echo.Context) error
+	// 計画を削除
+	// (DELETE /plans/{plan_id})
+	DeletePlan(ctx echo.Context, planId openapi_types.UUID) error
+	// 計画の詳細を取得
+	// (GET /plans/{plan_id})
+	GetPlan(ctx echo.Context, planId openapi_types.UUID) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -235,6 +356,75 @@ func (w *ServerInterfaceWrapper) HealthCheck(ctx echo.Context) error {
 	return err
 }
 
+// ListPlans converts echo context to params.
+func (w *ServerInterfaceWrapper) ListPlans(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ListPlans(ctx)
+	return err
+}
+
+// CreatePlan converts echo context to params.
+func (w *ServerInterfaceWrapper) CreatePlan(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreatePlan(ctx)
+	return err
+}
+
+// ReviewPlan converts echo context to params.
+func (w *ServerInterfaceWrapper) ReviewPlan(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ReviewPlan(ctx)
+	return err
+}
+
+// DeletePlan converts echo context to params.
+func (w *ServerInterfaceWrapper) DeletePlan(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "plan_id" -------------
+	var planId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "plan_id", ctx.Param("plan_id"), &planId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter plan_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeletePlan(ctx, planId)
+	return err
+}
+
+// GetPlan converts echo context to params.
+func (w *ServerInterfaceWrapper) GetPlan(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "plan_id" -------------
+	var planId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "plan_id", ctx.Param("plan_id"), &planId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter plan_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetPlan(ctx, planId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -291,6 +481,11 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.GET(options.BaseURL+"/avatar", wrapper.GetAvatar, options.OperationMiddlewares["getAvatar"]...)
 	router.PUT(options.BaseURL+"/avatar", wrapper.UpdateAvatar, options.OperationMiddlewares["updateAvatar"]...)
 	router.GET(options.BaseURL+"/health", wrapper.HealthCheck, options.OperationMiddlewares["healthCheck"]...)
+	router.GET(options.BaseURL+"/plans", wrapper.ListPlans, options.OperationMiddlewares["listPlans"]...)
+	router.POST(options.BaseURL+"/plans", wrapper.CreatePlan, options.OperationMiddlewares["createPlan"]...)
+	router.POST(options.BaseURL+"/plans/review", wrapper.ReviewPlan, options.OperationMiddlewares["reviewPlan"]...)
+	router.DELETE(options.BaseURL+"/plans/:plan_id", wrapper.DeletePlan, options.OperationMiddlewares["deletePlan"]...)
+	router.GET(options.BaseURL+"/plans/:plan_id", wrapper.GetPlan, options.OperationMiddlewares["getPlan"]...)
 
 }
 
@@ -299,32 +494,43 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-	"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",
+	"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",
+	"AwAA//8=",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,

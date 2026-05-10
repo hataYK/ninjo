@@ -24,3 +24,7 @@ func (ds *DataStore) User() repository.UserRepository {
 func (ds *DataStore) Availability() repository.AvailabilityRepository {
 	return persistence.NewAvailabilityRepository(ds.client)
 }
+
+func (ds *DataStore) Plan() repository.PlanRepository {
+	return persistence.NewPlanRepository(ds.client)
+}

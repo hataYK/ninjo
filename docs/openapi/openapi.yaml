@@ -196,6 +196,153 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /plans:
+    get:
+      operationId: listPlans
+      summary: 計画一覧を取得
+      tags: [plan]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanListResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createPlan
+      summary: 計画を作成
+      tags: [plan]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlanRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanResponse"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plans/review:
+    post:
+      operationId: reviewPlan
+      summary: 計画をAIにレビューしてもらう（保存しない）
+      tags: [plan]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlanRequest"
+      responses:
+        "200":
+          description: レビュー結果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanReviewResponse"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plans/{plan_id}:
+    get:
+      operationId: getPlan
+      summary: 計画の詳細を取得
+      tags: [plan]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanDetailResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: 計画が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deletePlan
+      summary: 計画を削除
+      tags: [plan]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: plan_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: 計画が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /health:
     get:
       operationId: healthCheck
@@ -333,6 +480,109 @@ components:
       properties:
         avatar_preset_id:
           type: string
+
+    CreatePlanRequest:
+      type: object
+      required: [title, total_pages, target_date]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        total_pages:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        target_date:
+          type: string
+          format: date
+          description: "目標期限（YYYY-MM-DD）。今日より後の日付"
+
+    PlanReviewResponse:
+      type: object
+      required: [daily_pages, total_days, available_days, review_message]
+      properties:
+        daily_pages:
+          type: number
+          format: float
+        total_days:
+          type: integer
+        available_days:
+          type: integer
+        review_message:
+          type: string
+
+    PlanResponse:
+      type: object
+      required: [id, title, total_pages, start_date, target_date, status, progress_rate, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        total_pages:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        target_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, completed, paused]
+        ai_review:
+          type: string
+        progress_rate:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+
+    PlanDetailResponse:
+      type: object
+      required: [id, title, total_pages, start_date, target_date, status, progress_rate, daily_pages_needed, days_remaining, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        total_pages:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        target_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, completed, paused]
+        ai_review:
+          type: string
+        progress_rate:
+          type: number
+          format: float
+        daily_pages_needed:
+          type: number
+          format: float
+        days_remaining:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    PlanListResponse:
+      type: object
+      required: [plans]
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanResponse"
 
     ErrorResponse:
       type: object
