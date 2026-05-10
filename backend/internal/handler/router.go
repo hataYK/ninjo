@@ -21,6 +21,11 @@ func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
 			"updateAvatar":       {authMw},
 			"getAvailability":    {authMw},
 			"updateAvailability": {authMw},
+			"listPlans":          {authMw},
+			"createPlan":         {authMw},
+			"reviewPlan":         {authMw},
+			"getPlan":            {authMw},
+			"deletePlan":         {authMw},
 		},
 	})
 }
