@@ -26,7 +26,6 @@ func (u *Usecase) Auth() *AuthUsecase {
 	return NewAuthUsecase(u.config.DS.User(), u.config.JWTSecret)
 }
 
-// 今後追加:
-// func (u *Usecase) Plan() *PlanUsecase { ... }
-// func (u *Usecase) DailyTask() *DailyTaskUsecase { ... }
-// func (u *Usecase) Availability() *AvailabilityUsecase { ... }
+func (u *Usecase) Availability() *AvailabilityUsecase {
+	return NewAvailabilityUsecase(u.config.DS.Availability())
+}

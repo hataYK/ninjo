@@ -3,12 +3,22 @@ package handler
 import (
 	"github.com/labstack/echo/v4"
 
+	"github.com/hatamotoyuki/ninjo/backend/internal/handler/middleware"
 	"github.com/hatamotoyuki/ninjo/backend/internal/handler/oapi"
 	"github.com/hatamotoyuki/ninjo/backend/internal/usecase"
 )
 
 // RegisterRoutes は OpenAPI から自動生成されたルーティングを登録する。
+// 認証が必要なエンドポイントには OperationMiddlewares で JWT ミドルウェアを適用する。
 func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
 	h := NewHandler(uc)
-	oapi.RegisterHandlers(e, h)
+	authMw := middleware.JWTAuth(uc.Auth())
+
+	oapi.RegisterHandlersWithOptions(e, h, oapi.RegisterHandlersOptions{
+		OperationMiddlewares: map[string][]echo.MiddlewareFunc{
+			// 認証が必要なエンドポイント
+			"getAvailability":    {authMw},
+			"updateAvailability": {authMw},
+		},
+	})
 }
