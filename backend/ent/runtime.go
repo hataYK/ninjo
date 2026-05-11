@@ -10,6 +10,7 @@ import (
 	"github.com/hatamotoyuki/ninjo/backend/ent/dailytask"
 	"github.com/hatamotoyuki/ninjo/backend/ent/plan"
 	"github.com/hatamotoyuki/ninjo/backend/ent/schema"
+	"github.com/hatamotoyuki/ninjo/backend/ent/skill"
 	"github.com/hatamotoyuki/ninjo/backend/ent/user"
 )
 
@@ -227,6 +228,52 @@ func init() {
 	planDescID := planFields[0].Descriptor()
 	// plan.DefaultID holds the default value on creation for the id field.
 	plan.DefaultID = planDescID.Default.(func() uuid.UUID)
+	skillFields := schema.Skill{}.Fields()
+	_ = skillFields
+	// skillDescName is the schema descriptor for name field.
+	skillDescName := skillFields[1].Descriptor()
+	// skill.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	skill.NameValidator = func() func(string) error {
+		validators := skillDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// skillDescCategory is the schema descriptor for category field.
+	skillDescCategory := skillFields[2].Descriptor()
+	// skill.CategoryValidator is a validator for the "category" field. It is called by the builders before save.
+	skill.CategoryValidator = func() func(string) error {
+		validators := skillDescCategory.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(category string) error {
+			for _, fn := range fns {
+				if err := fn(category); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// skillDescCreatedAt is the schema descriptor for created_at field.
+	skillDescCreatedAt := skillFields[5].Descriptor()
+	// skill.DefaultCreatedAt holds the default value on creation for the created_at field.
+	skill.DefaultCreatedAt = skillDescCreatedAt.Default.(func() time.Time)
+	// skillDescID is the schema descriptor for id field.
+	skillDescID := skillFields[0].Descriptor()
+	// skill.DefaultID holds the default value on creation for the id field.
+	skill.DefaultID = skillDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEmail is the schema descriptor for email field.

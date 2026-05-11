@@ -18,6 +18,8 @@ type Tx struct {
 	DailyTask *DailyTaskClient
 	// Plan is the client for interacting with the Plan builders.
 	Plan *PlanClient
+	// Skill is the client for interacting with the Skill builders.
+	Skill *SkillClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -154,6 +156,7 @@ func (tx *Tx) init() {
 	tx.Availability = NewAvailabilityClient(tx.config)
 	tx.DailyTask = NewDailyTaskClient(tx.config)
 	tx.Plan = NewPlanClient(tx.config)
+	tx.Skill = NewSkillClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

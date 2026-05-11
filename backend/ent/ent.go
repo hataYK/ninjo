@@ -15,6 +15,7 @@ import (
 	"github.com/hatamotoyuki/ninjo/backend/ent/availability"
 	"github.com/hatamotoyuki/ninjo/backend/ent/dailytask"
 	"github.com/hatamotoyuki/ninjo/backend/ent/plan"
+	"github.com/hatamotoyuki/ninjo/backend/ent/skill"
 	"github.com/hatamotoyuki/ninjo/backend/ent/user"
 )
 
@@ -79,6 +80,7 @@ func checkColumn(t, c string) error {
 			availability.Table: availability.ValidColumn,
 			dailytask.Table:    dailytask.ValidColumn,
 			plan.Table:         plan.ValidColumn,
+			skill.Table:        skill.ValidColumn,
 			user.Table:         user.ValidColumn,
 		})
 	})
