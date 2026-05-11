@@ -522,6 +522,172 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /daily-tasks:
+    get:
+      operationId: listDailyTasks
+      summary: 指定日のデイリータスク一覧を取得
+      tags: [daily-task]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: "対象日（YYYY-MM-DD）"
+      responses:
+        "200":
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyTaskListResponse"
+        "400":
+          description: 日付が不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /daily-tasks/generate:
+    post:
+      operationId: generateDailyTasks
+      summary: 指定日のデイリータスクを自動生成
+      tags: [daily-task]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateDailyTasksRequest"
+      responses:
+        "201":
+          description: 生成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyTaskListResponse"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: 指定日のタスクが既に生成済み
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /daily-tasks/{task_id}:
+    put:
+      operationId: updateDailyTask
+      summary: タスクのページ範囲を手動調整
+      tags: [daily-task]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDailyTaskRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyTaskResponse"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: タスクが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /daily-tasks/{task_id}/complete:
+    patch:
+      operationId: completeDailyTask
+      summary: タスクを完了にする
+      tags: [daily-task]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteDailyTaskRequest"
+      responses:
+        "200":
+          description: 完了成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyTaskResponse"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: タスクが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /health:
     get:
       operationId: healthCheck
@@ -842,6 +1008,94 @@ components:
             $ref: "#/components/schemas/SkillResponse"
         total_count:
           type: integer
+
+    GenerateDailyTasksRequest:
+      type: object
+      required: [date]
+      properties:
+        date:
+          type: string
+          format: date
+          description: "対象日（YYYY-MM-DD）。今日以降の日付"
+
+    UpdateDailyTaskRequest:
+      type: object
+      required: [start_page, end_page]
+      properties:
+        start_page:
+          type: integer
+          minimum: 1
+        end_page:
+          type: integer
+          minimum: 1
+
+    CompleteDailyTaskRequest:
+      type: object
+      required: [actual_end_page]
+      properties:
+        actual_end_page:
+          type: integer
+          minimum: 1
+        memo:
+          type: string
+          maxLength: 5000
+
+    DailyTaskResponse:
+      type: object
+      required: [id, plan_id, plan_title, date, start_page, end_page, is_completed, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        plan_id:
+          type: string
+          format: uuid
+        plan_title:
+          type: string
+        date:
+          type: string
+          format: date
+        start_page:
+          type: integer
+        end_page:
+          type: integer
+        actual_end_page:
+          type: integer
+        is_completed:
+          type: boolean
+        memo:
+          type: string
+        completed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    DailyTaskSummary:
+      type: object
+      required: [total, completed, total_pages]
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        total_pages:
+          type: integer
+
+    DailyTaskListResponse:
+      type: object
+      required: [date, tasks, summary]
+      properties:
+        date:
+          type: string
+          format: date
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyTaskResponse"
+        summary:
+          $ref: "#/components/schemas/DailyTaskSummary"
 
     ErrorResponse:
       type: object

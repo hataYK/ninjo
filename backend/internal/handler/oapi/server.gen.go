@@ -4,10 +4,17 @@
 package oapi
 
 import (
+	"bytes"
+	"compress/flate"
+	"encoding/base64"
 	"fmt"
 	"net/http"
+	"net/url"
+	"path"
+	"strings"
 	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -104,6 +111,12 @@ type AvatarResponse struct {
 	SkillCount      int                  `json:"skill_count"`
 }
 
+// CompleteDailyTaskRequest defines model for CompleteDailyTaskRequest.
+type CompleteDailyTaskRequest struct {
+	ActualEndPage int     `json:"actual_end_page"`
+	Memo          *string `json:"memo,omitempty"`
+}
+
 // CreatePlanRequest defines model for CreatePlanRequest.
 type CreatePlanRequest struct {
 	// TargetDate 目標期限（YYYY-MM-DD）。今日より後の日付
@@ -121,6 +134,35 @@ type CreateSkillRequest struct {
 	TaskId *openapi_types.UUID `json:"task_id,omitempty"`
 }
 
+// DailyTaskListResponse defines model for DailyTaskListResponse.
+type DailyTaskListResponse struct {
+	Date    openapi_types.Date  `json:"date"`
+	Summary DailyTaskSummary    `json:"summary"`
+	Tasks   []DailyTaskResponse `json:"tasks"`
+}
+
+// DailyTaskResponse defines model for DailyTaskResponse.
+type DailyTaskResponse struct {
+	ActualEndPage *int               `json:"actual_end_page,omitempty"`
+	CompletedAt   *time.Time         `json:"completed_at,omitempty"`
+	CreatedAt     time.Time          `json:"created_at"`
+	Date          openapi_types.Date `json:"date"`
+	EndPage       int                `json:"end_page"`
+	Id            openapi_types.UUID `json:"id"`
+	IsCompleted   bool               `json:"is_completed"`
+	Memo          *string            `json:"memo,omitempty"`
+	PlanId        openapi_types.UUID `json:"plan_id"`
+	PlanTitle     string             `json:"plan_title"`
+	StartPage     int                `json:"start_page"`
+}
+
+// DailyTaskSummary defines model for DailyTaskSummary.
+type DailyTaskSummary struct {
+	Completed  int `json:"completed"`
+	Total      int `json:"total"`
+	TotalPages int `json:"total_pages"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error string `json:"error"`
@@ -129,6 +171,12 @@ type ErrorResponse struct {
 // ExtractSkillsResponse defines model for ExtractSkillsResponse.
 type ExtractSkillsResponse struct {
 	SuggestedSkills []SuggestedSkill `json:"suggested_skills"`
+}
+
+// GenerateDailyTasksRequest defines model for GenerateDailyTasksRequest.
+type GenerateDailyTasksRequest struct {
+	// Date 対象日（YYYY-MM-DD）。今日以降の日付
+	Date openapi_types.Date `json:"date"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -238,6 +286,12 @@ type UpdateAvatarRequest struct {
 	AvatarPresetId string `json:"avatar_preset_id"`
 }
 
+// UpdateDailyTaskRequest defines model for UpdateDailyTaskRequest.
+type UpdateDailyTaskRequest struct {
+	EndPage   int `json:"end_page"`
+	StartPage int `json:"start_page"`
+}
+
 // UpdateSkillRequest defines model for UpdateSkillRequest.
 type UpdateSkillRequest struct {
 	Category string `json:"category"`
@@ -253,6 +307,12 @@ type UserResponse struct {
 
 // cookieAuthContextKey is the context key for cookieAuth security scheme
 type cookieAuthContextKey string
+
+// ListDailyTasksParams defines parameters for ListDailyTasks.
+type ListDailyTasksParams struct {
+	// Date 対象日（YYYY-MM-DD）
+	Date openapi_types.Date `form:"date" json:"date"`
+}
 
 // ListSkillsParams defines parameters for ListSkills.
 type ListSkillsParams struct {
@@ -271,6 +331,15 @@ type UpdateAvailabilityJSONRequestBody = UpdateAvailabilityRequest
 
 // UpdateAvatarJSONRequestBody defines body for UpdateAvatar for application/json ContentType.
 type UpdateAvatarJSONRequestBody = UpdateAvatarRequest
+
+// GenerateDailyTasksJSONRequestBody defines body for GenerateDailyTasks for application/json ContentType.
+type GenerateDailyTasksJSONRequestBody = GenerateDailyTasksRequest
+
+// UpdateDailyTaskJSONRequestBody defines body for UpdateDailyTask for application/json ContentType.
+type UpdateDailyTaskJSONRequestBody = UpdateDailyTaskRequest
+
+// CompleteDailyTaskJSONRequestBody defines body for CompleteDailyTask for application/json ContentType.
+type CompleteDailyTaskJSONRequestBody = CompleteDailyTaskRequest
 
 // CreatePlanJSONRequestBody defines body for CreatePlan for application/json ContentType.
 type CreatePlanJSONRequestBody = CreatePlanRequest
@@ -310,6 +379,18 @@ type ServerInterface interface {
 	// アバターのプリセットを設定/変更
 	// (PUT /avatar)
 	UpdateAvatar(ctx echo.Context) error
+	// 指定日のデイリータスク一覧を取得
+	// (GET /daily-tasks)
+	ListDailyTasks(ctx echo.Context, params ListDailyTasksParams) error
+	// 指定日のデイリータスクを自動生成
+	// (POST /daily-tasks/generate)
+	GenerateDailyTasks(ctx echo.Context) error
+	// タスクのページ範囲を手動調整
+	// (PUT /daily-tasks/{task_id})
+	UpdateDailyTask(ctx echo.Context, taskId openapi_types.UUID) error
+	// タスクを完了にする
+	// (PATCH /daily-tasks/{task_id}/complete)
+	CompleteDailyTask(ctx echo.Context, taskId openapi_types.UUID) error
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
@@ -427,6 +508,73 @@ func (w *ServerInterfaceWrapper) UpdateAvatar(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.UpdateAvatar(ctx)
+	return err
+}
+
+// ListDailyTasks converts echo context to params.
+func (w *ServerInterfaceWrapper) ListDailyTasks(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListDailyTasksParams
+	// ------------- Required query parameter "date" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "date", ctx.QueryParams(), &params.Date, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter date: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ListDailyTasks(ctx, params)
+	return err
+}
+
+// GenerateDailyTasks converts echo context to params.
+func (w *ServerInterfaceWrapper) GenerateDailyTasks(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GenerateDailyTasks(ctx)
+	return err
+}
+
+// UpdateDailyTask converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateDailyTask(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "task_id" -------------
+	var taskId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "task_id", ctx.Param("task_id"), &taskId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter task_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateDailyTask(ctx, taskId)
+	return err
+}
+
+// CompleteDailyTask converts echo context to params.
+func (w *ServerInterfaceWrapper) CompleteDailyTask(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "task_id" -------------
+	var taskId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "task_id", ctx.Param("task_id"), &taskId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter task_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CompleteDailyTask(ctx, taskId)
 	return err
 }
 
@@ -648,6 +796,10 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.PUT(options.BaseURL+"/availability", wrapper.UpdateAvailability, options.OperationMiddlewares["updateAvailability"]...)
 	router.GET(options.BaseURL+"/avatar", wrapper.GetAvatar, options.OperationMiddlewares["getAvatar"]...)
 	router.PUT(options.BaseURL+"/avatar", wrapper.UpdateAvatar, options.OperationMiddlewares["updateAvatar"]...)
+	router.GET(options.BaseURL+"/daily-tasks", wrapper.ListDailyTasks, options.OperationMiddlewares["listDailyTasks"]...)
+	router.POST(options.BaseURL+"/daily-tasks/generate", wrapper.GenerateDailyTasks, options.OperationMiddlewares["generateDailyTasks"]...)
+	router.PUT(options.BaseURL+"/daily-tasks/:task_id", wrapper.UpdateDailyTask, options.OperationMiddlewares["updateDailyTask"]...)
+	router.PATCH(options.BaseURL+"/daily-tasks/:task_id/complete", wrapper.CompleteDailyTask, options.OperationMiddlewares["completeDailyTask"]...)
 	router.GET(options.BaseURL+"/health", wrapper.HealthCheck, options.OperationMiddlewares["healthCheck"]...)
 	router.GET(options.BaseURL+"/plans", wrapper.ListPlans, options.OperationMiddlewares["listPlans"]...)
 	router.POST(options.BaseURL+"/plans", wrapper.CreatePlan, options.OperationMiddlewares["createPlan"]...)
@@ -660,4 +812,155 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.PUT(options.BaseURL+"/skills/:skill_id", wrapper.UpdateSkill, options.OperationMiddlewares["updateSkill"]...)
 	router.POST(options.BaseURL+"/tasks/:task_id/extract-skills", wrapper.ExtractSkills, options.OperationMiddlewares["extractSkills"]...)
 
+}
+
+// Base64 encoded, compressed with deflate, json marshaled OpenAPI spec.
+// Stored as a slice of fixed-width chunks rather than one concatenated
+// const string: with thousands of chunks the chained `+` fold is several
+// times slower for the Go compiler than parsing a slice literal.
+var swaggerSpec = []string{
+	"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",
+}
+
+// decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
+// after base64-decoding and flate-decompressing the embedded blob.
+func decodeSpec() ([]byte, error) {
+	encoded := strings.Join(swaggerSpec, "")
+	compressed, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return nil, fmt.Errorf("error base64 decoding spec: %w", err)
+	}
+	zr := flate.NewReader(bytes.NewReader(compressed))
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(zr); err != nil {
+		return nil, fmt.Errorf("read flate: %w", err)
+	}
+	if err := zr.Close(); err != nil {
+		return nil, fmt.Errorf("close flate reader: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+var rawSpec = decodeSpecCached()
+
+// a naive cache of the decoded OpenAPI spec
+func decodeSpecCached() func() ([]byte, error) {
+	data, err := decodeSpec()
+	return func() ([]byte, error) {
+		return data, err
+	}
+}
+
+// Constructs a synthetic filesystem for resolving external references when loading openapi specifications.
+func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {
+	res := make(map[string]func() ([]byte, error))
+	if len(pathToFile) > 0 {
+		res[pathToFile] = rawSpec
+	}
+
+	return res
+}
+
+// GetSpec returns the OpenAPI specification corresponding to the generated
+// code in this file. External references in the spec are resolved through
+// PathToRawSpec; externally-referenced files must be embedded in their
+// corresponding Go packages (via the import-mapping feature). URL-based
+// external refs are not supported.
+func GetSpec() (swagger *openapi3.T, err error) {
+	resolvePath := PathToRawSpec("")
+
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+	loader.ReadFromURIFunc = func(loader *openapi3.Loader, url *url.URL) ([]byte, error) {
+		pathToFile := url.String()
+		pathToFile = path.Clean(pathToFile)
+		getSpec, ok := resolvePath[pathToFile]
+		if !ok {
+			err1 := fmt.Errorf("path not found: %s", pathToFile)
+			return nil, err1
+		}
+		return getSpec()
+	}
+	var specData []byte
+	specData, err = rawSpec()
+	if err != nil {
+		return
+	}
+	swagger, err = loader.LoadFromData(specData)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// GetSpecJSON returns the raw JSON bytes of the embedded OpenAPI
+// specification: decompressed but not unmarshaled. External references
+// are not resolved here; the bytes are the spec exactly as embedded by
+// codegen. The result is cached at package init time, so repeated calls
+// are cheap.
+func GetSpecJSON() ([]byte, error) {
+	return rawSpec()
+}
+
+// GetSwagger returns the OpenAPI specification corresponding to the
+// generated code in this file.
+//
+// Deprecated: GetSwagger predates kin-openapi renaming openapi3.Swagger
+// to openapi3.T. Use [GetSpec] instead. This wrapper is retained for
+// backwards compatibility.
+func GetSwagger() (*openapi3.T, error) {
+	return GetSpec()
 }
