@@ -31,6 +31,8 @@ const (
 	EdgePlans = "plans"
 	// EdgeAvailabilities holds the string denoting the availabilities edge name in mutations.
 	EdgeAvailabilities = "availabilities"
+	// EdgeSkills holds the string denoting the skills edge name in mutations.
+	EdgeSkills = "skills"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PlansTable is the table that holds the plans relation/edge.
@@ -47,6 +49,13 @@ const (
 	AvailabilitiesInverseTable = "availabilities"
 	// AvailabilitiesColumn is the table column denoting the availabilities relation/edge.
 	AvailabilitiesColumn = "user_availabilities"
+	// SkillsTable is the table that holds the skills relation/edge.
+	SkillsTable = "skills"
+	// SkillsInverseTable is the table name for the Skill entity.
+	// It exists in this package in order to avoid circular dependency with the "skill" package.
+	SkillsInverseTable = "skills"
+	// SkillsColumn is the table column denoting the skills relation/edge.
+	SkillsColumn = "user_skills"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -154,6 +163,20 @@ func ByAvailabilities(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAvailabilitiesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySkillsCount orders the results by skills count.
+func BySkillsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSkillsStep(), opts...)
+	}
+}
+
+// BySkills orders the results by skills terms.
+func BySkills(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSkillsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPlansStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -166,5 +189,12 @@ func newAvailabilitiesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AvailabilitiesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AvailabilitiesTable, AvailabilitiesColumn),
+	)
+}
+func newSkillsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SkillsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SkillsTable, SkillsColumn),
 	)
 }

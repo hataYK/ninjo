@@ -4,17 +4,10 @@
 package oapi
 
 import (
-	"bytes"
-	"compress/flate"
-	"encoding/base64"
 	"fmt"
 	"net/http"
-	"net/url"
-	"path"
-	"strings"
 	"time"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -66,6 +59,24 @@ func (e PlanResponseStatus) Valid() bool {
 	}
 }
 
+// Defines values for SkillResponseSource.
+const (
+	Ai     SkillResponseSource = "ai"
+	Manual SkillResponseSource = "manual"
+)
+
+// Valid indicates whether the value is a known member of the SkillResponseSource enum.
+func (e SkillResponseSource) Valid() bool {
+	switch e {
+	case Ai:
+		return true
+	case Manual:
+		return true
+	default:
+		return false
+	}
+}
+
 // AvailabilityItem defines model for AvailabilityItem.
 type AvailabilityItem struct {
 	// DayOfWeek Go time.Weekday 準拠（0=日曜, 1=月曜, ..., 6=土曜）
@@ -101,9 +112,23 @@ type CreatePlanRequest struct {
 	TotalPages int                `json:"total_pages"`
 }
 
+// CreateSkillRequest defines model for CreateSkillRequest.
+type CreateSkillRequest struct {
+	Category string `json:"category"`
+	Name     string `json:"name"`
+
+	// TaskId タスクに紐付ける場合のみ指定
+	TaskId *openapi_types.UUID `json:"task_id,omitempty"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+// ExtractSkillsResponse defines model for ExtractSkillsResponse.
+type ExtractSkillsResponse struct {
+	SuggestedSkills []SuggestedSkill `json:"suggested_skills"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -177,6 +202,31 @@ type SkillCategoryCount struct {
 	Count    int    `json:"count"`
 }
 
+// SkillListResponse defines model for SkillListResponse.
+type SkillListResponse struct {
+	Skills     []SkillResponse `json:"skills"`
+	TotalCount int             `json:"total_count"`
+}
+
+// SkillResponse defines model for SkillResponse.
+type SkillResponse struct {
+	Category  string              `json:"category"`
+	CreatedAt time.Time           `json:"created_at"`
+	Id        openapi_types.UUID  `json:"id"`
+	Name      string              `json:"name"`
+	Source    SkillResponseSource `json:"source"`
+	TaskId    *openapi_types.UUID `json:"task_id,omitempty"`
+}
+
+// SkillResponseSource defines model for SkillResponse.Source.
+type SkillResponseSource string
+
+// SuggestedSkill defines model for SuggestedSkill.
+type SuggestedSkill struct {
+	Category string `json:"category"`
+	Name     string `json:"name"`
+}
+
 // UpdateAvailabilityRequest defines model for UpdateAvailabilityRequest.
 type UpdateAvailabilityRequest struct {
 	Availability []AvailabilityItem `json:"availability"`
@@ -188,6 +238,12 @@ type UpdateAvatarRequest struct {
 	AvatarPresetId string `json:"avatar_preset_id"`
 }
 
+// UpdateSkillRequest defines model for UpdateSkillRequest.
+type UpdateSkillRequest struct {
+	Category string `json:"category"`
+	Name     string `json:"name"`
+}
+
 // UserResponse defines model for UserResponse.
 type UserResponse struct {
 	DisplayName string             `json:"display_name"`
@@ -197,6 +253,12 @@ type UserResponse struct {
 
 // cookieAuthContextKey is the context key for cookieAuth security scheme
 type cookieAuthContextKey string
+
+// ListSkillsParams defines parameters for ListSkills.
+type ListSkillsParams struct {
+	// Category カテゴリでフィルタ
+	Category *string `form:"category,omitempty" json:"category,omitempty"`
+}
 
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = LoginRequest
@@ -215,6 +277,12 @@ type CreatePlanJSONRequestBody = CreatePlanRequest
 
 // ReviewPlanJSONRequestBody defines body for ReviewPlan for application/json ContentType.
 type ReviewPlanJSONRequestBody = CreatePlanRequest
+
+// CreateSkillJSONRequestBody defines body for CreateSkill for application/json ContentType.
+type CreateSkillJSONRequestBody = CreateSkillRequest
+
+// UpdateSkillJSONRequestBody defines body for UpdateSkill for application/json ContentType.
+type UpdateSkillJSONRequestBody = UpdateSkillRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -260,6 +328,21 @@ type ServerInterface interface {
 	// 計画の詳細を取得
 	// (GET /plans/{plan_id})
 	GetPlan(ctx echo.Context, planId openapi_types.UUID) error
+	// ユーザーの全スキル一覧を取得
+	// (GET /skills)
+	ListSkills(ctx echo.Context, params ListSkillsParams) error
+	// スキルを手動追加
+	// (POST /skills)
+	CreateSkill(ctx echo.Context) error
+	// スキルを削除
+	// (DELETE /skills/{skill_id})
+	DeleteSkill(ctx echo.Context, skillId openapi_types.UUID) error
+	// スキルの名前やカテゴリを更新
+	// (PUT /skills/{skill_id})
+	UpdateSkill(ctx echo.Context, skillId openapi_types.UUID) error
+	// タスクのメモからAIがスキルを抽出（保存しない）
+	// (POST /tasks/{task_id}/extract-skills)
+	ExtractSkills(ctx echo.Context, taskId openapi_types.UUID) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -425,6 +508,91 @@ func (w *ServerInterfaceWrapper) GetPlan(ctx echo.Context) error {
 	return err
 }
 
+// ListSkills converts echo context to params.
+func (w *ServerInterfaceWrapper) ListSkills(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListSkillsParams
+	// ------------- Optional query parameter "category" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "category", ctx.QueryParams(), &params.Category, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter category: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ListSkills(ctx, params)
+	return err
+}
+
+// CreateSkill converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateSkill(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateSkill(ctx)
+	return err
+}
+
+// DeleteSkill converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteSkill(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "skill_id" -------------
+	var skillId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "skill_id", ctx.Param("skill_id"), &skillId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter skill_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteSkill(ctx, skillId)
+	return err
+}
+
+// UpdateSkill converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateSkill(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "skill_id" -------------
+	var skillId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "skill_id", ctx.Param("skill_id"), &skillId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter skill_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UpdateSkill(ctx, skillId)
+	return err
+}
+
+// ExtractSkills converts echo context to params.
+func (w *ServerInterfaceWrapper) ExtractSkills(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "task_id" -------------
+	var taskId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "task_id", ctx.Param("task_id"), &taskId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "uuid"})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter task_id: %s", err))
+	}
+
+	ctx.Set(string(CookieAuthScopes), []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ExtractSkills(ctx, taskId)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -486,140 +654,10 @@ func RegisterHandlersWithOptions(router EchoRouter, si ServerInterface, options 
 	router.POST(options.BaseURL+"/plans/review", wrapper.ReviewPlan, options.OperationMiddlewares["reviewPlan"]...)
 	router.DELETE(options.BaseURL+"/plans/:plan_id", wrapper.DeletePlan, options.OperationMiddlewares["deletePlan"]...)
 	router.GET(options.BaseURL+"/plans/:plan_id", wrapper.GetPlan, options.OperationMiddlewares["getPlan"]...)
+	router.GET(options.BaseURL+"/skills", wrapper.ListSkills, options.OperationMiddlewares["listSkills"]...)
+	router.POST(options.BaseURL+"/skills", wrapper.CreateSkill, options.OperationMiddlewares["createSkill"]...)
+	router.DELETE(options.BaseURL+"/skills/:skill_id", wrapper.DeleteSkill, options.OperationMiddlewares["deleteSkill"]...)
+	router.PUT(options.BaseURL+"/skills/:skill_id", wrapper.UpdateSkill, options.OperationMiddlewares["updateSkill"]...)
+	router.POST(options.BaseURL+"/tasks/:task_id/extract-skills", wrapper.ExtractSkills, options.OperationMiddlewares["extractSkills"]...)
 
-}
-
-// Base64 encoded, compressed with deflate, json marshaled OpenAPI spec.
-// Stored as a slice of fixed-width chunks rather than one concatenated
-// const string: with thousands of chunks the chained `+` fold is several
-// times slower for the Go compiler than parsing a slice literal.
-var swaggerSpec = []string{
-	"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",
-	"AwAA//8=",
-}
-
-// decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
-// after base64-decoding and flate-decompressing the embedded blob.
-func decodeSpec() ([]byte, error) {
-	encoded := strings.Join(swaggerSpec, "")
-	compressed, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		return nil, fmt.Errorf("error base64 decoding spec: %w", err)
-	}
-	zr := flate.NewReader(bytes.NewReader(compressed))
-	var buf bytes.Buffer
-	if _, err := buf.ReadFrom(zr); err != nil {
-		return nil, fmt.Errorf("read flate: %w", err)
-	}
-	if err := zr.Close(); err != nil {
-		return nil, fmt.Errorf("close flate reader: %w", err)
-	}
-
-	return buf.Bytes(), nil
-}
-
-var rawSpec = decodeSpecCached()
-
-// a naive cache of the decoded OpenAPI spec
-func decodeSpecCached() func() ([]byte, error) {
-	data, err := decodeSpec()
-	return func() ([]byte, error) {
-		return data, err
-	}
-}
-
-// Constructs a synthetic filesystem for resolving external references when loading openapi specifications.
-func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {
-	res := make(map[string]func() ([]byte, error))
-	if len(pathToFile) > 0 {
-		res[pathToFile] = rawSpec
-	}
-
-	return res
-}
-
-// GetSpec returns the OpenAPI specification corresponding to the generated
-// code in this file. External references in the spec are resolved through
-// PathToRawSpec; externally-referenced files must be embedded in their
-// corresponding Go packages (via the import-mapping feature). URL-based
-// external refs are not supported.
-func GetSpec() (swagger *openapi3.T, err error) {
-	resolvePath := PathToRawSpec("")
-
-	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = true
-	loader.ReadFromURIFunc = func(loader *openapi3.Loader, url *url.URL) ([]byte, error) {
-		pathToFile := url.String()
-		pathToFile = path.Clean(pathToFile)
-		getSpec, ok := resolvePath[pathToFile]
-		if !ok {
-			err1 := fmt.Errorf("path not found: %s", pathToFile)
-			return nil, err1
-		}
-		return getSpec()
-	}
-	var specData []byte
-	specData, err = rawSpec()
-	if err != nil {
-		return
-	}
-	swagger, err = loader.LoadFromData(specData)
-	if err != nil {
-		return
-	}
-	return
-}
-
-// GetSpecJSON returns the raw JSON bytes of the embedded OpenAPI
-// specification: decompressed but not unmarshaled. External references
-// are not resolved here; the bytes are the spec exactly as embedded by
-// codegen. The result is cached at package init time, so repeated calls
-// are cheap.
-func GetSpecJSON() ([]byte, error) {
-	return rawSpec()
-}
-
-// GetSwagger returns the OpenAPI specification corresponding to the
-// generated code in this file.
-//
-// Deprecated: GetSwagger predates kin-openapi renaming openapi3.Swagger
-// to openapi3.T. Use [GetSpec] instead. This wrapper is retained for
-// backwards compatibility.
-func GetSwagger() (*openapi3.T, error) {
-	return GetSpec()
 }

@@ -42,9 +42,11 @@ type UserEdges struct {
 	Plans []*Plan `json:"plans,omitempty"`
 	// Availabilities holds the value of the availabilities edge.
 	Availabilities []*Availability `json:"availabilities,omitempty"`
+	// Skills holds the value of the skills edge.
+	Skills []*Skill `json:"skills,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // PlansOrErr returns the Plans value or an error if the edge
@@ -63,6 +65,15 @@ func (e UserEdges) AvailabilitiesOrErr() ([]*Availability, error) {
 		return e.Availabilities, nil
 	}
 	return nil, &NotLoadedError{edge: "availabilities"}
+}
+
+// SkillsOrErr returns the Skills value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) SkillsOrErr() ([]*Skill, error) {
+	if e.loadedTypes[2] {
+		return e.Skills, nil
+	}
+	return nil, &NotLoadedError{edge: "skills"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -155,6 +166,11 @@ func (_m *User) QueryPlans() *PlanQuery {
 // QueryAvailabilities queries the "availabilities" edge of the User entity.
 func (_m *User) QueryAvailabilities() *AvailabilityQuery {
 	return NewUserClient(_m.config).QueryAvailabilities(_m)
+}
+
+// QuerySkills queries the "skills" edge of the User entity.
+func (_m *User) QuerySkills() *SkillQuery {
+	return NewUserClient(_m.config).QuerySkills(_m)
 }
 
 // Update returns a builder for updating this User.

@@ -95,6 +95,47 @@ var (
 			},
 		},
 	}
+	// SkillsColumns holds the columns for the "skills" table.
+	SkillsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "category", Type: field.TypeString, Size: 100},
+		{Name: "source", Type: field.TypeEnum, Enums: []string{"ai", "manual"}, Default: "manual"},
+		{Name: "task_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "user_skills", Type: field.TypeUUID},
+	}
+	// SkillsTable holds the schema information for the "skills" table.
+	SkillsTable = &schema.Table{
+		Name:       "skills",
+		Columns:    SkillsColumns,
+		PrimaryKey: []*schema.Column{SkillsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "skills_users_skills",
+				Columns:    []*schema.Column{SkillsColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "skill_user_skills",
+				Unique:  false,
+				Columns: []*schema.Column{SkillsColumns[6]},
+			},
+			{
+				Name:    "skill_category_user_skills",
+				Unique:  false,
+				Columns: []*schema.Column{SkillsColumns[2], SkillsColumns[6]},
+			},
+			{
+				Name:    "skill_name_user_skills",
+				Unique:  true,
+				Columns: []*schema.Column{SkillsColumns[1], SkillsColumns[6]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -116,6 +157,7 @@ var (
 		AvailabilitiesTable,
 		DailyTasksTable,
 		PlansTable,
+		SkillsTable,
 		UsersTable,
 	}
 )
@@ -124,4 +166,5 @@ func init() {
 	AvailabilitiesTable.ForeignKeys[0].RefTable = UsersTable
 	DailyTasksTable.ForeignKeys[0].RefTable = PlansTable
 	PlansTable.ForeignKeys[0].RefTable = UsersTable
+	SkillsTable.ForeignKeys[0].RefTable = UsersTable
 }

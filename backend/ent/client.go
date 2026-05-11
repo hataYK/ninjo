@@ -19,6 +19,7 @@ import (
 	"github.com/hatamotoyuki/ninjo/backend/ent/availability"
 	"github.com/hatamotoyuki/ninjo/backend/ent/dailytask"
 	"github.com/hatamotoyuki/ninjo/backend/ent/plan"
+	"github.com/hatamotoyuki/ninjo/backend/ent/skill"
 	"github.com/hatamotoyuki/ninjo/backend/ent/user"
 )
 
@@ -33,6 +34,8 @@ type Client struct {
 	DailyTask *DailyTaskClient
 	// Plan is the client for interacting with the Plan builders.
 	Plan *PlanClient
+	// Skill is the client for interacting with the Skill builders.
+	Skill *SkillClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -49,6 +52,7 @@ func (c *Client) init() {
 	c.Availability = NewAvailabilityClient(c.config)
 	c.DailyTask = NewDailyTaskClient(c.config)
 	c.Plan = NewPlanClient(c.config)
+	c.Skill = NewSkillClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -145,6 +149,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Availability: NewAvailabilityClient(cfg),
 		DailyTask:    NewDailyTaskClient(cfg),
 		Plan:         NewPlanClient(cfg),
+		Skill:        NewSkillClient(cfg),
 		User:         NewUserClient(cfg),
 	}, nil
 }
@@ -168,6 +173,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Availability: NewAvailabilityClient(cfg),
 		DailyTask:    NewDailyTaskClient(cfg),
 		Plan:         NewPlanClient(cfg),
+		Skill:        NewSkillClient(cfg),
 		User:         NewUserClient(cfg),
 	}, nil
 }
@@ -200,6 +206,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Availability.Use(hooks...)
 	c.DailyTask.Use(hooks...)
 	c.Plan.Use(hooks...)
+	c.Skill.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -209,6 +216,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Availability.Intercept(interceptors...)
 	c.DailyTask.Intercept(interceptors...)
 	c.Plan.Intercept(interceptors...)
+	c.Skill.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -221,6 +229,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DailyTask.mutate(ctx, m)
 	case *PlanMutation:
 		return c.Plan.mutate(ctx, m)
+	case *SkillMutation:
+		return c.Skill.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -691,6 +701,155 @@ func (c *PlanClient) mutate(ctx context.Context, m *PlanMutation) (Value, error)
 	}
 }
 
+// SkillClient is a client for the Skill schema.
+type SkillClient struct {
+	config
+}
+
+// NewSkillClient returns a client for the Skill from the given config.
+func NewSkillClient(c config) *SkillClient {
+	return &SkillClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `skill.Hooks(f(g(h())))`.
+func (c *SkillClient) Use(hooks ...Hook) {
+	c.hooks.Skill = append(c.hooks.Skill, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `skill.Intercept(f(g(h())))`.
+func (c *SkillClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Skill = append(c.inters.Skill, interceptors...)
+}
+
+// Create returns a builder for creating a Skill entity.
+func (c *SkillClient) Create() *SkillCreate {
+	mutation := newSkillMutation(c.config, OpCreate)
+	return &SkillCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Skill entities.
+func (c *SkillClient) CreateBulk(builders ...*SkillCreate) *SkillCreateBulk {
+	return &SkillCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SkillClient) MapCreateBulk(slice any, setFunc func(*SkillCreate, int)) *SkillCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SkillCreateBulk{err: fmt.Errorf("calling to SkillClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SkillCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SkillCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Skill.
+func (c *SkillClient) Update() *SkillUpdate {
+	mutation := newSkillMutation(c.config, OpUpdate)
+	return &SkillUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SkillClient) UpdateOne(_m *Skill) *SkillUpdateOne {
+	mutation := newSkillMutation(c.config, OpUpdateOne, withSkill(_m))
+	return &SkillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SkillClient) UpdateOneID(id uuid.UUID) *SkillUpdateOne {
+	mutation := newSkillMutation(c.config, OpUpdateOne, withSkillID(id))
+	return &SkillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Skill.
+func (c *SkillClient) Delete() *SkillDelete {
+	mutation := newSkillMutation(c.config, OpDelete)
+	return &SkillDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SkillClient) DeleteOne(_m *Skill) *SkillDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SkillClient) DeleteOneID(id uuid.UUID) *SkillDeleteOne {
+	builder := c.Delete().Where(skill.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SkillDeleteOne{builder}
+}
+
+// Query returns a query builder for Skill.
+func (c *SkillClient) Query() *SkillQuery {
+	return &SkillQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSkill},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Skill entity by its id.
+func (c *SkillClient) Get(ctx context.Context, id uuid.UUID) (*Skill, error) {
+	return c.Query().Where(skill.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SkillClient) GetX(ctx context.Context, id uuid.UUID) *Skill {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Skill.
+func (c *SkillClient) QueryUser(_m *Skill) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(skill.Table, skill.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, skill.UserTable, skill.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SkillClient) Hooks() []Hook {
+	return c.hooks.Skill
+}
+
+// Interceptors returns the client interceptors.
+func (c *SkillClient) Interceptors() []Interceptor {
+	return c.inters.Skill
+}
+
+func (c *SkillClient) mutate(ctx context.Context, m *SkillMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SkillCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SkillUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SkillUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SkillDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Skill mutation op: %q", m.Op())
+	}
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -831,6 +990,22 @@ func (c *UserClient) QueryAvailabilities(_m *User) *AvailabilityQuery {
 	return query
 }
 
+// QuerySkills queries the skills edge of a User.
+func (c *UserClient) QuerySkills(_m *User) *SkillQuery {
+	query := (&SkillClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(skill.Table, skill.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.SkillsTable, user.SkillsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -859,9 +1034,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Availability, DailyTask, Plan, User []ent.Hook
+		Availability, DailyTask, Plan, Skill, User []ent.Hook
 	}
 	inters struct {
-		Availability, DailyTask, Plan, User []ent.Interceptor
+		Availability, DailyTask, Plan, Skill, User []ent.Interceptor
 	}
 )
