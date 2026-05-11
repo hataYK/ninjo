@@ -31,6 +31,10 @@ func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
 			"createSkill":        {authMw},
 			"updateSkill":        {authMw},
 			"deleteSkill":        {authMw},
+			"listDailyTasks":     {authMw},
+			"generateDailyTasks": {authMw},
+			"updateDailyTask":    {authMw},
+			"completeDailyTask":  {authMw},
 		},
 	})
 }

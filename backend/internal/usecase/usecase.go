@@ -41,3 +41,7 @@ func (u *Usecase) Plan() *PlanUsecase {
 func (u *Usecase) Skill() *SkillUsecase {
 	return NewSkillUsecase(u.config.DS.Skill())
 }
+
+func (u *Usecase) DailyTask() *DailyTaskUsecase {
+	return NewDailyTaskUsecase(u.config.DS.DailyTask(), u.config.DS.Plan(), u.config.DS.Availability())
+}

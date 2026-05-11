@@ -32,3 +32,7 @@ func (ds *DataStore) Plan() repository.PlanRepository {
 func (ds *DataStore) Skill() repository.SkillRepository {
 	return persistence.NewSkillRepository(ds.client)
 }
+
+func (ds *DataStore) DailyTask() repository.DailyTaskRepository {
+	return persistence.NewDailyTaskRepository(ds.client)
+}
