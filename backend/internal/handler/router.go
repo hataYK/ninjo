@@ -26,6 +26,11 @@ func RegisterRoutes(e *echo.Echo, uc *usecase.Usecase) {
 			"reviewPlan":         {authMw},
 			"getPlan":            {authMw},
 			"deletePlan":         {authMw},
+			"extractSkills":      {authMw},
+			"listSkills":         {authMw},
+			"createSkill":        {authMw},
+			"updateSkill":        {authMw},
+			"deleteSkill":        {authMw},
 		},
 	})
 }

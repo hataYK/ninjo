@@ -37,3 +37,7 @@ func (u *Usecase) Availability() *AvailabilityUsecase {
 func (u *Usecase) Plan() *PlanUsecase {
 	return NewPlanUsecase(u.config.DS.Plan(), u.config.DS.Availability())
 }
+
+func (u *Usecase) Skill() *SkillUsecase {
+	return NewSkillUsecase(u.config.DS.Skill())
+}
